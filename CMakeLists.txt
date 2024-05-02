@@ -6,6 +6,7 @@ project(openiolink VERSION 1.0.0 LANGUAGES C CXX)
 
 # set the C++17 standard
 set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_CXX_CPPLINT "cpplint")
 
 # Define Required libraries 
 list(APPEND REQUIRED_LIBRARIES 

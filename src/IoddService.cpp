@@ -8,21 +8,23 @@
  * @since 11.08.2022
  */
 
-void IoddService::setBitLength(ProcessDataElement* element) {
-    if (element->bitLength > 128|| element->bitLength ==0) {
-        if (element->type == "BooleanT") {
+void IoddService::setBitLength(ProcessDataElement *element)
+{
+    if (element->bitLength > 128 || element->bitLength == 0)
+    {
+        if (element->type == "BooleanT")
+        {
             element->bitLength = 1;
         }
-        if (element->type == "UIntegerT") {
+        if (element->type == "UIntegerT")
+        {
             element->bitLength = 64;
         }
-
-        if (element->type == "Float32T") {
+        if (element->type == "Float32T")
+        {
             element->bitLength = 32;
         }
-
     }
- 
 }
 /**
  * \brief Turns 8 bits into a byte.
@@ -37,7 +39,7 @@ void IoddService::setBitLength(ProcessDataElement* element) {
  * \param bitShiftRight number of bits needed to align the data
  * \return the extracted byte
  */
-uint8_t IoddService::getByteFromRight(const uint8_t* const pData, const std::size_t bitShiftRight)
+uint8_t IoddService::getByteFromRight(const uint8_t *const pData, const std::size_t bitShiftRight)
 {
     uint8_t byte = 0;
 
@@ -72,7 +74,7 @@ uint8_t IoddService::getByteFromRight(const uint8_t* const pData, const std::siz
  * \param bitLength the number of bits to extract (1..64)
  * \param bitOffset the offset of the first bit from the left (0..7)
  */
-uint64_t IoddService::getUInt64(const uint8_t* const pData, const uint16_t bitLength, const uint16_t bitOffset)
+uint64_t IoddService::getUInt64(const uint8_t *const pData, const uint16_t bitLength, const uint16_t bitOffset)
 {
     uint64_t returnVal = 0;
 
@@ -81,13 +83,12 @@ uint64_t IoddService::getUInt64(const uint8_t* const pData, const uint16_t bitLe
     // The extracted bits will need to be shifted this many bits to the
     // right to align with the destination bytes.
     const std::size_t bitOffsetRight = (8u - ((static_cast<uint32_t>(bitOffset + bitLength)) & 7u)) & 7u;
-    unsigned int      bitsRemaining = bitLength;
-    int               bitsOld;
+    unsigned int bitsRemaining = bitLength;
+    int bitsOld;
     do
     {
-        returnVal |= (static_cast<uint64_t>(getByteFromRight(pData + ((bitOffset + bitsRemaining - 1u) >> 3u), bitOffsetRight))
-            & (bitsRemaining >= 8u ? 0xFFu : (0xFFu >> (8u - bitsRemaining))))
-            << (bitLength - bitsRemaining);
+        returnVal |= (static_cast<uint64_t>(getByteFromRight(pData + ((bitOffset + bitsRemaining - 1u) >> 3u), bitOffsetRight)) & (bitsRemaining >= 8u ? 0xFFu : (0xFFu >> (8u - bitsRemaining))))
+                     << (bitLength - bitsRemaining);
 
         bitsOld = static_cast<int>(bitsRemaining);
         bitsRemaining -= 8;
@@ -96,64 +97,63 @@ uint64_t IoddService::getUInt64(const uint8_t* const pData, const uint16_t bitLe
 
     return returnVal;
 }
-IolDataReturn_t IoddService::getProcessDataVar(const ProcessDataElement& dataItem, const uint8_t* data, std::size_t dataLength)
+IolDataReturn_t IoddService::getProcessDataVar(const ProcessDataElement &dataItem, const uint8_t *data, std::size_t dataLength)
 {
-    const auto* const pProcessData = reinterpret_cast<const uint8_t* const>(data);
+    const auto *const pProcessData = reinterpret_cast<const uint8_t *const>(data);
     uint16_t bitOffset = dataLength * 8 - dataItem.bitOffset - dataItem.bitLength;
     // Sanity check
-    if (data==nullptr || dataItem.bitLength == 0 )
+    if (data == nullptr || dataItem.bitLength == 0)
     {
         return "Invalid";
     }
-   
-   
-    if(dataItem.type== "BooleanT") {
+
+    if (dataItem.type == "BooleanT")
+    {
         return static_cast<bool>(pProcessData[bitOffset >> 3u] & (1u << (7u - (bitOffset & 7u))));
     }
-    if (dataItem.type == "UIntegerT") {
+    if (dataItem.type == "UIntegerT")
+    {
         if ((64 >= dataItem.bitLength) && (2 <= dataItem.bitLength))
         {
             return getUInt64(pProcessData + (bitOffset >> 3u), dataItem.bitLength, bitOffset & 7u);
         }
         return "Invalid";
     }
-    if (dataItem.type == "Float32T") {
-         // This type is always byte-aligned, even inside a RecordT.
-         if (!(dataItem.bitOffset & 7u) )
-         {
-             // Get pointer to first byte
-             const uint8_t* const p = pProcessData + (bitOffset >> 3u);
+    if (dataItem.type == "Float32T")
+    {
+        // This type is always byte-aligned, even inside a RecordT.
+        if (!(dataItem.bitOffset & 7u))
+        {
+            // Get pointer to first byte
+            const uint8_t *const p = pProcessData + (bitOffset >> 3u);
 
-             // Convert byte order and align to 4-byte boundary.
-             // An uint32_t is used because it is the same size.
-             const uint32_t tempIntVal = static_cast<uint32_t>((p[0] << 24u)) | static_cast<uint32_t>((p[1] << 16u)) | static_cast<uint32_t>((p[2] << 8u))
-                 | static_cast<uint32_t>(p[3]);
+            // Convert byte order and align to 4-byte boundary.
+            // An uint32_t is used because it is the same size.
+            const uint32_t tempIntVal = static_cast<uint32_t>((p[0] << 24u)) | static_cast<uint32_t>((p[1] << 16u)) | static_cast<uint32_t>((p[2] << 8u)) | static_cast<uint32_t>(p[3]);
 
-             // Force the bytes from tempIntVal to be treated as a float.
-             // This avoids an attempt to convert the value.  The next line
-             // suppresses the cppcheck error message.
-             // cppcheck-suppress invalidPointerCast
-             return *reinterpret_cast<const float*>(&tempIntVal);
-         }
-         return "Invalid";
-     }
+            // Force the bytes from tempIntVal to be treated as a float.
+            // This avoids an attempt to convert the value.  The next line
+            // suppresses the cppcheck error message.
+            // cppcheck-suppress invalidPointerCast
+            return *reinterpret_cast<const float *>(&tempIntVal);
+        }
+        return "Invalid";
+    }
     return "Invalid";
 }
 
-std::tuple<nlohmann::json, nlohmann::json> IoddService::interpretProcessData(const std::vector <ProcessDataElement> iodd,const uint8_t* data, std::size_t dataLength, uint16_t conditionVariable)
+std::tuple<nlohmann::json, nlohmann::json> IoddService::interpretProcessData(const std::vector<ProcessDataElement> iodd, const uint8_t *data, std::size_t dataLength, uint16_t conditionVariable)
 {
-  
 
     // Initialize json
     nlohmann::json values(nlohmann::detail::value_t::object);
     nlohmann::json units(nlohmann::detail::value_t::object);
 
-
-
-    for (ProcessDataElement element : iodd) {
+    for (ProcessDataElement element : iodd)
+    {
         std::string key = element.key;
-         IolDataReturn_t variable = getProcessDataVar(element, data, dataLength);
-        ProcessDataInfo_t* processDataInfo = &element.processDataInfo;
+        IolDataReturn_t variable = getProcessDataVar(element, data, dataLength);
+        ProcessDataInfo_t *processDataInfo = &element.processDataInfo;
         // Boolean
         if (std::holds_alternative<bool>(variable))
         {
@@ -166,7 +166,6 @@ std::tuple<nlohmann::json, nlohmann::json> IoddService::interpretProcessData(con
             {
 
                 values[key] = processDataInfo->gradient * std::get<uint64_t>(variable) + processDataInfo->offset;
-
             }
             else
             {
@@ -179,7 +178,6 @@ std::tuple<nlohmann::json, nlohmann::json> IoddService::interpretProcessData(con
             if (processDataInfo)
             {
                 values[key] = processDataInfo->gradient * std::get<int64_t>(variable) + processDataInfo->offset;
-
             }
             else
             {
@@ -193,7 +191,6 @@ std::tuple<nlohmann::json, nlohmann::json> IoddService::interpretProcessData(con
             {
 
                 values[key] = processDataInfo->gradient * std::get<float>(variable) + processDataInfo->offset;
-
             }
             else
             {
@@ -206,9 +203,9 @@ std::tuple<nlohmann::json, nlohmann::json> IoddService::interpretProcessData(con
             values[key] = std::get<std::string>(variable);
             // OctetString
         }
-        else if (std::holds_alternative<std::list<char> >(variable))
+        else if (std::holds_alternative<std::list<char>>(variable))
         {
-            values[key] = std::get<std::list<char> >(variable);
+            values[key] = std::get<std::list<char>>(variable);
             // TimeSpanT
         }
         else if (std::holds_alternative<long double>(variable))
@@ -216,34 +213,24 @@ std::tuple<nlohmann::json, nlohmann::json> IoddService::interpretProcessData(con
             values[key] = std::get<long double>(variable);
             // TimeT
         }
-       
     }
-
-    
-
-
-  
-
-
-
     return std::make_tuple(values, units);
 }
 
 std::tuple<nlohmann::json, nlohmann::json> IoddService::interpretProcessData(std::vector<uint8_t> rawProcessData, uint16_t VendorID, uint32_t DeviceID, uint8_t RevisionID)
 {
-  
     uint16_t condition = 0;
 
-    std::vector <ProcessDataElement> elements;
+    std::vector<ProcessDataElement> elements;
 
-    std::vector <ProcessDataElement> SmartlightElements = {};
-    ProcessDataElement  TI_PD_Blinking_Segment1;
-    ProcessDataElement  TI_PD_Color_Segment1;
-    ProcessDataElement  TI_PD_Blinking_Segment2;
-    ProcessDataElement  TI_PD_Color_Segment2;
-    ProcessDataElement  TI_PD_Blinking_Segment3;
-    ProcessDataElement  TI_PD_Color_Segment3;
-    ProcessDataElement  TI_PD_SyncImp;
+    std::vector<ProcessDataElement> SmartlightElements = {};
+    ProcessDataElement TI_PD_Blinking_Segment1;
+    ProcessDataElement TI_PD_Color_Segment1;
+    ProcessDataElement TI_PD_Blinking_Segment2;
+    ProcessDataElement TI_PD_Color_Segment2;
+    ProcessDataElement TI_PD_Blinking_Segment3;
+    ProcessDataElement TI_PD_Color_Segment3;
+    ProcessDataElement TI_PD_SyncImp;
     ProcessDataElement TI_PD_SyncStart;
     TI_PD_Blinking_Segment1.key = "TI_PD_Blinking_Segment1";
     TI_PD_Blinking_Segment1.subindex = 1;
@@ -290,7 +277,7 @@ std::tuple<nlohmann::json, nlohmann::json> IoddService::interpretProcessData(std
     SmartlightElements.push_back(TI_PD_SyncImp);
     SmartlightElements.push_back(TI_PD_SyncStart);
 
-    std::vector <ProcessDataElement> SmartlightElements_1 = {};
+    std::vector<ProcessDataElement> SmartlightElements_1 = {};
 
     ProcessDataElement TI_PD_Level;
     TI_PD_Level.key = "TI_PD_Level";
@@ -301,7 +288,7 @@ std::tuple<nlohmann::json, nlohmann::json> IoddService::interpretProcessData(std
 
     SmartlightElements_1.push_back(TI_PD_Level);
 
-    std::vector <ProcessDataElement> BawElements = {};
+    std::vector<ProcessDataElement> BawElements = {};
 
     ProcessDataElement TI_TargetPosition;
     TI_TargetPosition.key = "TI_TargetPosition";
@@ -336,7 +323,7 @@ std::tuple<nlohmann::json, nlohmann::json> IoddService::interpretProcessData(std
     BawElements.push_back(TI_BinaryChannel2);
     BawElements.push_back(TI_BinaryChannel1);
 
-    std::vector <ProcessDataElement> BesElements = {};
+    std::vector<ProcessDataElement> BesElements = {};
 
     ProcessDataElement TN_PDI_SSC1;
     TN_PDI_SSC1.key = "TN_PDI_SSC1";
@@ -384,7 +371,7 @@ std::tuple<nlohmann::json, nlohmann::json> IoddService::interpretProcessData(std
     TN_PDI_COUNT.type = "UIntegerT";
     TN_PDI_COUNT.bitOffset = 8;
     TN_PDI_COUNT.bitLength = 16;
-       
+
     BesElements.push_back(TN_PDI_SSC1);
     BesElements.push_back(TN_PDI_OUT_OF_RANGE);
     BesElements.push_back(TN_PDI_SPEED_TOO_LOW);
@@ -394,12 +381,8 @@ std::tuple<nlohmann::json, nlohmann::json> IoddService::interpretProcessData(std
     BesElements.push_back(TN_PDI_TEACH_ERROR);
     BesElements.push_back(TN_PDI_COUNT_LIMIT);
     BesElements.push_back(TN_PDI_COUNT);
-        
-       
-       
-        
 
-    std::vector <ProcessDataElement> BcmElements = {};
+    std::vector<ProcessDataElement> BcmElements = {};
 
     ProcessDataElement TI_PD_In_Vibration_Veloc_Vibration_Veloc_RMS_v_RMS_X;
     TI_PD_In_Vibration_Veloc_Vibration_Veloc_RMS_v_RMS_X.key = "TI_PD_In_Vibration_Veloc_Vibration_Veloc_RMS_v_RMS_X";
@@ -618,62 +601,50 @@ std::tuple<nlohmann::json, nlohmann::json> IoddService::interpretProcessData(std
     TI_PD_In_Vibration_Veloc_SB_Humidity_Upper_Alarm_Status.bitOffset = 0;
     BcmElements.push_back(TI_PD_In_Vibration_Veloc_SB_Humidity_Upper_Alarm_Status);
 
-  
-
-
-    if (DeviceID == 330242) {
+    if (DeviceID == 330242)
+    {
         for (size_t i = 0; i < SmartlightElements_1.size(); i++)
         {
             setBitLength(&SmartlightElements_1[i]);
             elements.push_back(SmartlightElements_1[i]);
         }
-           
-     
-       
     }
 
-    if (DeviceID == 917762) {
+    if (DeviceID == 917762)
+    {
         for (size_t i = 0; i < BcmElements.size(); i++)
         {
             setBitLength(&BcmElements[BcmElements.size() - 1 - i]);
-            elements.push_back(BcmElements[BcmElements.size()-1-i]);
+            elements.push_back(BcmElements[BcmElements.size() - 1 - i]);
         }
-      
-        
     }
-    
-        if (DeviceID == 131330) {
 
-            for (size_t i = 0; i < BawElements.size(); i++)
-            {
-                setBitLength(&BawElements[i]);
-                elements.push_back(BawElements[i]);
-            }
-       
+    if (DeviceID == 131330)
+    {
+        for (size_t i = 0; i < BawElements.size(); i++)
+        {
+            setBitLength(&BawElements[i]);
+            elements.push_back(BawElements[i]);
         }
+    }
 
-    if (DeviceID == 132099) {
+    if (DeviceID == 132099)
+    {
         for (size_t i = 0; i < BesElements.size(); i++)
         {
             setBitLength(&BesElements[i]);
             elements.push_back(BesElements[i]);
         }
-    
-
     }
-    
 
-   
-        try {
-            const std::tuple<nlohmann::json, nlohmann::json> transformedData = interpretProcessData(elements,rawProcessData.data(), rawProcessData.size(), condition);
-            return transformedData;
-        }
-        catch (int e)
-        {
-            
-            const std::tuple<nlohmann::json, nlohmann::json> emptyJson;
-            return emptyJson;
-        }
-    
+    try
+    {
+        const std::tuple<nlohmann::json, nlohmann::json> transformedData = interpretProcessData(elements, rawProcessData.data(), rawProcessData.size(), condition);
+        return transformedData;
+    }
+    catch (int e)
+    {
+        const std::tuple<nlohmann::json, nlohmann::json> emptyJson;
+        return emptyJson;
+    }
 }
-

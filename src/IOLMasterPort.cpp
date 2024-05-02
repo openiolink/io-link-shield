@@ -1,6 +1,6 @@
 /*!
  * @file IOLMasterPort.cpp
- * @brief Abstract class layer for driver ic independent port implementation. Defines methods 
+ * @brief Abstract class layer for driver ic independent port implementation. Defines methods
  *        and variables for the IOLMasterPort<driver_ic> implementation.
  * @copyright 2022 Balluff GmbH
  *   Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,14 +34,13 @@
 //!
 //!*******************************************************************************
 IOLMasterPort::IOLMasterPort()
-:portType_(0),
-diModeSupport_(0),
-portMode_(0),
-portStatus_(0),
-actualCycleTime_(0),
-comSpeed_(0)
+    : portType_(0),
+      diModeSupport_(0),
+      portMode_(0),
+      portStatus_(0),
+      actualCycleTime_(0),
+      comSpeed_(0)
 {
-
 }
 
 IOLMasterPort::~IOLMasterPort()

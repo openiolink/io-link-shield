@@ -119,12 +119,11 @@ uint8_t Max14819::begin(PortSelect port)
     uint8_t retValue = SUCCESS;
     uint8_t shadowReg = 0;
 
-    
-  /*   shadowReg = readRegister(DeviceDlyA);
-    shadowReg |= 1u;
-    retValue = uint8_t(retValue | writeRegister(DeviceDlyA, shadowReg));
-    Hardware->wait_for(10);
-    shadowReg = 0;*/
+    /*   shadowReg = readRegister(DeviceDlyA);
+      shadowReg |= 1u;
+      retValue = uint8_t(retValue | writeRegister(DeviceDlyA, shadowReg));
+      Hardware->wait_for(10);
+      shadowReg = 0;*/
 
     switch (driver_)
     {
@@ -148,35 +147,35 @@ uint8_t Max14819::begin(PortSelect port)
             Hardware->IO_PinMode(Hardware->port1LedRxRdy, Hardware->in_pullup);
 
             // Set chipselect output high (low-active)
-            Hardware->IO_Write(Hardware->port01CS, HIGH);            // Enable extern crystal
+            Hardware->IO_Write(Hardware->port01CS, HIGH); // Enable extern crystal
 
             retValue = uint8_t(retValue | writeRegister(Clock, TXTXENDis | ClkOEn | XtalEn)); // Frequency is 14.745 MHz
-        }     // switch
+        }                                                                                     // switch
 
-            switch (port)
-            {
-            case PORTA:
+        switch (port)
+        {
+        case PORTA:
             cout << "\nDriver 01 Port A\n";
-                // Set outputs high for Port A (low-active)
-                Hardware->IO_Write(Hardware->port0LedRed, HIGH);
-                Hardware->IO_Write(Hardware->port0LedGreen, HIGH);
+            // Set outputs high for Port A (low-active)
+            Hardware->IO_Write(Hardware->port0LedRed, HIGH);
+            Hardware->IO_Write(Hardware->port0LedGreen, HIGH);
 
-                // Port A successfully initialized
-                isInitPortA_ = 1;
-                break;
-            case PORTB:
+            // Port A successfully initialized
+            isInitPortA_ = 1;
+            break;
+        case PORTB:
             cout << "\nDriver 01 Port B\n";
-                // Set outputs high for Port B (low-active)
-                Hardware->IO_Write(Hardware->port1LedRed, HIGH);
-                Hardware->IO_Write(Hardware->port1LedGreen, HIGH);
+            // Set outputs high for Port B (low-active)
+            Hardware->IO_Write(Hardware->port1LedRed, HIGH);
+            Hardware->IO_Write(Hardware->port1LedGreen, HIGH);
 
-                // Port B successfully initialized
-                isInitPortB_ = 1;
-                break;
-            default:
-                retValue = ERROR;
-                break;
-            } // switch(port
+            // Port B successfully initialized
+            isInitPortB_ = 1;
+            break;
+        default:
+            retValue = ERROR;
+            break;
+        } // switch(port
         break;
     case DRIVER23:
         // Initialize IOs and clock for driver 23
@@ -208,8 +207,8 @@ uint8_t Max14819::begin(PortSelect port)
         case PORTA:
             cout << "\nDriver 23 Port A\n";
             // Set outputs high for Port A (low-active)
-                Hardware->IO_Write(Hardware->port2LedRed, HIGH);
-                Hardware->IO_Write(Hardware->port2LedGreen, HIGH);
+            Hardware->IO_Write(Hardware->port2LedRed, HIGH);
+            Hardware->IO_Write(Hardware->port2LedGreen, HIGH);
 
             // Port A successfully initialized
             isInitPortA_ = 1;
@@ -217,8 +216,8 @@ uint8_t Max14819::begin(PortSelect port)
         case PORTB:
             cout << "\nDriver 23 Port B\n";
             // Set outputs high for Port B (low-active)
-                Hardware->IO_Write(Hardware->port3LedRed, HIGH);
-                Hardware->IO_Write(Hardware->port3LedGreen, HIGH);
+            Hardware->IO_Write(Hardware->port3LedRed, HIGH);
+            Hardware->IO_Write(Hardware->port3LedGreen, HIGH);
 
             // Port B successfully initialized
             isInitPortB_ = 1;
@@ -241,7 +240,7 @@ uint8_t Max14819::begin(PortSelect port)
     Hardware->wait_for(INIT_POWER_OFF_DELAY);
 
     // Initialize global registers
-    retValue = uint8_t(retValue | writeRegister(DrvrCurrLim, CL1 | CL0 | CLBL1 | CLBL0 | ArEn)); //CQ 500 mA currentlimit, 5 ms min error duration before interrupt
+    retValue = uint8_t(retValue | writeRegister(DrvrCurrLim, CL1 | CL0 | CLBL1 | CLBL0 | ArEn)); // CQ 500 mA currentlimit, 5 ms min error duration before interrupt
 
     // Initialize the port sepcific registers
     switch (port)
@@ -276,7 +275,7 @@ uint8_t Max14819::begin(PortSelect port)
         retValue = ERROR;
         break;
     } // switch(port)
-    
+
     // Wait 0.2s for bootup of the device
     Hardware->wait_for(INIT_BOOTUP_DELAY);
 
@@ -312,17 +311,17 @@ uint8_t Max14819::end(PortSelect port)
             // turn off all LEDs
             Hardware->IO_Write(Hardware->port0LedGreen, HIGH);
             Hardware->IO_Write(Hardware->port0LedRed, HIGH);
-        break;
+            break;
         case PORTB:
             // Reset max14819 registers
             retValue = reset(PORTB);
             // turn off all LEDs
             Hardware->IO_Write(Hardware->port1LedGreen, HIGH);
             Hardware->IO_Write(Hardware->port1LedRed, HIGH);
-        break;
+            break;
         default:
             retValue = ERROR;
-        break;
+            break;
         } // switch(port)
 
     case DRIVER23:
@@ -334,17 +333,17 @@ uint8_t Max14819::end(PortSelect port)
             // turn off all LEDs
             Hardware->IO_Write(Hardware->port2LedGreen, HIGH);
             Hardware->IO_Write(Hardware->port2LedRed, HIGH);
-        break;
+            break;
         case PORTB:
             // Reset max14819 registers
             retValue = reset(PORTB);
             // turn off all LEDs
             Hardware->IO_Write(Hardware->port3LedGreen, HIGH);
             Hardware->IO_Write(Hardware->port3LedRed, HIGH);
-        break;
+            break;
         default:
             retValue = ERROR;
-        break;
+            break;
         } // switch(port)
 
     default:
@@ -476,25 +475,26 @@ uint8_t Max14819::wakeUpRequest(PortSelect port, uint32_t *comSpeed_ret)
         comReqRunning |= 1u;
         comReqRunning = readRegister(CQCtrlA);
         retValue = uint8_t(retValue | writeRegister(DeviceDlyA, 3));
-        retValue = uint8_t(retValue | writeRegister(IOStCfgA, 0));                              // Disable tx needed for wake up
-        retValue = uint8_t(retValue | writeRegister(ChanStatA, FramerEn));                      // Enable ChanA Framer
-        retValue = uint8_t(retValue | writeRegister(MsgCtrlA, InsChks | RChksEn | RMessgRdyEn));// Dont use InsChks when transmit OD Data, max14819 doesnt calculate it right
-         //  retValue = uint8_t(retValue | writeRegister(MsgCtrlA, 0));                              // Dont use InsChks when transmit OD Data, max14819 doesnt calculate it right
-        
-        retValue = uint8_t(retValue | writeRegister(CQCtrlA, EstCom));                          // Start communication
+        retValue = uint8_t(retValue | writeRegister(IOStCfgA, 0));                               // Disable tx needed for wake up
+        retValue = uint8_t(retValue | writeRegister(ChanStatA, FramerEn));                       // Enable ChanA Framer
+        retValue = uint8_t(retValue | writeRegister(MsgCtrlA, InsChks | RChksEn | RMessgRdyEn)); // Dont use InsChks when transmit OD Data, max14819 doesnt calculate it right
+                                                                                                 //  retValue = uint8_t(retValue | writeRegister(MsgCtrlA, 0));                              // Dont use InsChks when transmit OD Data, max14819 doesnt calculate it right
+
+        retValue = uint8_t(retValue | writeRegister(CQCtrlA, EstCom)); // Start communication
         Hardware->wait_for(10);
         comReqRunning = readRegister(DeviceDlyA);
         // Wait till establish communication sequence is over or timeout is reached
         do
         {
-           
+
             comReqRunning = readRegister(CQCtrlA);
             comReqRunning &= EstCom;
             timeOutCounter++;
             Hardware->wait_for(1);
-            if (timeOutCounter > INIT_WURQ_TIMEOUT) {
+            if (timeOutCounter > INIT_WURQ_TIMEOUT)
+            {
                 Hardware->Serial_Write("WAKEUP-Timeout-Error\n");
-               //retValue = uint8_t(retValue | writeRegister(RxFIFORst, 1));
+                // retValue = uint8_t(retValue | writeRegister(RxFIFORst, 1));
             }
         } while (comReqRunning || (timeOutCounter < INIT_WURQ_TIMEOUT));
 
@@ -509,8 +509,7 @@ uint8_t Max14819::wakeUpRequest(PortSelect port, uint32_t *comSpeed_ret)
         // read communication speed
 
         comSpeedRegA = readRegister(CQCtrlA) & (ComRt0 | ComRt1);
-        
-        
+
         comSpeed = comSpeedRegA;
         if (comSpeed == 0)
         {
@@ -520,12 +519,12 @@ uint8_t Max14819::wakeUpRequest(PortSelect port, uint32_t *comSpeed_ret)
     case PORTB:
         // Start wakeup and communcation
         retValue = uint8_t(retValue | writeRegister(DeviceDlyB, 3));
-        retValue = uint8_t(retValue | writeRegister(IOStCfgB, 0));                              // Disable tx needed for wake up
-        retValue = uint8_t(retValue | writeRegister(ChanStatB, FramerEn));                      // Enable Chanb Framer
-        retValue = uint8_t(retValue | writeRegister(MsgCtrlB, InsChks | RChksEn | RMessgRdyEn));// Dont use InsChks when transmit OD Data, max14819 doesnt calculate it right
-//        retValue = uint8_t(retValue | writeRegister(MsgCtrlB, 0));                              // Dont use InsChks when transmit OD Data, max14819 doesnt calculate it right
-       
-        retValue = uint8_t(retValue | writeRegister(CQCtrlB, EstCom));                          // Start communication
+        retValue = uint8_t(retValue | writeRegister(IOStCfgB, 0));                               // Disable tx needed for wake up
+        retValue = uint8_t(retValue | writeRegister(ChanStatB, FramerEn));                       // Enable Chanb Framer
+        retValue = uint8_t(retValue | writeRegister(MsgCtrlB, InsChks | RChksEn | RMessgRdyEn)); // Dont use InsChks when transmit OD Data, max14819 doesnt calculate it right
+                                                                                                 //        retValue = uint8_t(retValue | writeRegister(MsgCtrlB, 0));                              // Dont use InsChks when transmit OD Data, max14819 doesnt calculate it right
+
+        retValue = uint8_t(retValue | writeRegister(CQCtrlB, EstCom)); // Start communication
 
         // Wait till establish communication sequence is over or timeout is reached
         do
@@ -615,7 +614,7 @@ uint8_t Max14819::readRegister(uint8_t reg)
     {
     case DRIVER01:
         // Mask read register with the read cmd and set spi address of the max14819
-        reg = reg |  (read << 7) |  (port01Address << 5);
+        reg = reg | (read << 7) | (port01Address << 5);
         // Set channel to 0
         channel = 0;
         break;
@@ -694,7 +693,6 @@ uint8_t Max14819::writeRegister(uint8_t reg, uint8_t data)
 
     // Return Error state
     return retValue;
-    
 }
 //!******************************************************************************
 //!  function :    	writeISDU
@@ -714,13 +712,13 @@ uint8_t Max14819::writeRegister(uint8_t reg, uint8_t data)
 //!  \return        0 if success
 //!
 //!******************************************************************************
-uint8_t Max14819::writeISDU(uint8_t mc, uint8_t sizeAnswer, uint8_t mSeqType, PortSelect port, vector<uint8_t>& isduDataFrame, uint8_t ProcessDataOut, vector<uint8_t> completeframe)
+uint8_t Max14819::writeISDU(uint8_t mc, uint8_t sizeAnswer, uint8_t mSeqType, PortSelect port, vector<uint8_t> &isduDataFrame, uint8_t ProcessDataOut, vector<uint8_t> completeframe)
 {
     uint8_t retValue = SUCCESS;
     uint8_t bufferRegister;
     uint8_t sizeDataSend = isduDataFrame.size() + 2; // +2 for MC and CKT
     if ((sizeDataSend) > MAX_MSG_LENGTH)
-    { //include 1 byte master command and 1 byte for checksum
+    { // include 1 byte master command and 1 byte for checksum
         return ERROR;
     }
     // Use corresponding transmit FIFO address
@@ -738,20 +736,20 @@ uint8_t Max14819::writeISDU(uint8_t mc, uint8_t sizeAnswer, uint8_t mSeqType, Po
         break;
     }
     // Write message to max14819 FIFO
-    retValue = uint8_t(retValue | writeRegister(bufferRegister, sizeAnswer+1));     // number of bytes for answer +1 CKS
-    cout<<"buffer: "<<int(sizeAnswer+1)<<endl;
-    retValue = uint8_t(retValue | writeRegister(bufferRegister, sizeDataSend/*+2*/));   // number of bytes to send including master command and checksum (+2)
-    cout<<"buffer: "<<int(sizeDataSend)<<endl;
-    retValue = uint8_t(retValue | writeRegister(bufferRegister, mc));             // begin of message, master command
-    cout<<"buffer: "<<int(mc)<<endl;
+    retValue = uint8_t(retValue | writeRegister(bufferRegister, sizeAnswer + 1)); // number of bytes for answer +1 CKS
+    cout << "buffer: " << int(sizeAnswer + 1) << endl;
+    retValue = uint8_t(retValue | writeRegister(bufferRegister, sizeDataSend /*+2*/)); // number of bytes to send including master command and checksum (+2)
+    cout << "buffer: " << int(sizeDataSend) << endl;
+    retValue = uint8_t(retValue | writeRegister(bufferRegister, mc)); // begin of message, master command
+    cout << "buffer: " << int(mc) << endl;
     retValue = uint8_t(retValue | writeRegister(bufferRegister, calculateCKT(mc, mSeqType, isduDataFrame)));
-    cout<<"buffer: "<<int(calculateCKT(mc,mSeqType,isduDataFrame))<<endl;
-   cout << "Send: ";
+    cout << "buffer: " << int(calculateCKT(mc, mSeqType, isduDataFrame)) << endl;
+    cout << "Send: ";
     for (auto const &value : isduDataFrame)
     {
         cout << int(value) << ", ";
         retValue = uint8_t(retValue | writeRegister(bufferRegister, value));
-        cout<<"buffervalue: "<<int(value)<<endl;
+        cout << "buffervalue: " << int(value) << endl;
     }
     switch (port)
     {
@@ -803,20 +801,20 @@ uint8_t Max14819::readISDU(vector<uint8_t> &oData, uint8_t sizeData, PortSelect 
         break;
     }
     int length = readRegister(bufferRegister);
-    cout<<"length: "<<length<<endl;
+    cout << "length: " << length << endl;
 
-    if (sizeData!=length)
+    if (sizeData != length)
     {
         retValue = ERROR;
     }
-    cout<<"ErrorRegister CQErrA: "<<int(readRegister(CQErrA))<<endl;
+    cout << "ErrorRegister CQErrA: " << int(readRegister(CQErrA)) << endl;
 
     // Read data from FIFO
     for (uint8_t i = 0; i < sizeData; i++)
     {
         oData.push_back(readRegister(bufferRegister));
     }
-    
+
     // Return Error state
     return retValue;
 }
@@ -853,24 +851,25 @@ uint8_t Max14819::readPD(vector<uint8_t> &pData, uint8_t sizeData, PortSelect po
         break;
     }
     int length = readRegister(bufferRegister);
-    //cout<<"length"<<length<<endl;
-    // Control if the answer has the expected length (first byte in the FIFO is the message length)
+    // cout<<"length"<<length<<endl;
+    //  Control if the answer has the expected length (first byte in the FIFO is the message length)
     if (sizeData != length)
     {
-        //cout << "Length: " << length << " Expected length: " << int(sizeData) << endl;
+        // cout << "Length: " << length << " Expected length: " << int(sizeData) << endl;
         retValue = ERROR;
         // Return Error state
-//        return retValue;
+        //        return retValue;
     }
-    pData.push_back(length-sizeOD);
+    pData.push_back(length - sizeOD);
     // Read data from FIFO
     for (uint8_t i = 0; i < length; i++)
     {
-        if(i>=sizeOD)
+        if (i >= sizeOD)
         {
             pData.push_back(readRegister(bufferRegister));
         }
-        else readRegister(bufferRegister); //read out ODData which transfer also PDData unnecessarily
+        else
+            readRegister(bufferRegister); // read out ODData which transfer also PDData unnecessarily
     }
     // Return Error state
     return retValue;
@@ -897,7 +896,7 @@ uint8_t Max14819::writeData(uint8_t mc, uint8_t sizeData, uint8_t *pData, uint8_
     uint8_t retValue = SUCCESS;
 
     // Test if message is not too long
-    if ((sizeData + 2) > MAX_MSG_LENGTH) //include 1 byte masterc ommand and 1 byte for checksum
+    if ((sizeData + 2) > MAX_MSG_LENGTH) // include 1 byte masterc ommand and 1 byte for checksum
     {
         return ERROR;
     }
@@ -920,7 +919,7 @@ uint8_t Max14819::writeData(uint8_t mc, uint8_t sizeData, uint8_t *pData, uint8_
 
     // Write message to max14819 FIFO
     retValue = uint8_t(retValue | writeRegister(bufferRegister, sizeAnswer));                                  // number of bytes for answer
-    retValue = uint8_t(retValue | writeRegister(bufferRegister, uint8_t(sizeData /*+ 2*/)));                       // number of bytes to send including master command and checksum
+    retValue = uint8_t(retValue | writeRegister(bufferRegister, uint8_t(sizeData /*+ 2*/)));                   // number of bytes to send including master command and checksum
     retValue = uint8_t(retValue | writeRegister(bufferRegister, mc));                                          // begin of message, master command
     retValue = uint8_t(retValue | writeRegister(bufferRegister, calculateCKT(mc, pData, sizeData, mSeqType))); // second byte of message, checksum (CKT)
     for (uint8_t i = 0; i < sizeData; i++)
@@ -941,12 +940,12 @@ uint8_t Max14819::writeData(uint8_t mc, uint8_t sizeData, uint8_t *pData, uint8_
         retValue = ERROR;
         break;
     } // switch(port)
-        uint8_t comReqRunning = readRegister(CQErrA);
-        //std::cout << "Write Com A Register: "<< int(comReqRunning) << std::endl;
-        uint8_t comReqRunning2 = readRegister(CQErrB);
-        //std::cout << "Write Com B Register: "<< int(comReqRunning2) << std::endl;
-        uint8_t inter = readRegister(Interrupt);
-        //std::cout << "Write Interrupt Register: "<< inter << std::endl;
+    uint8_t comReqRunning = readRegister(CQErrA);
+    // std::cout << "Write Com A Register: "<< int(comReqRunning) << std::endl;
+    uint8_t comReqRunning2 = readRegister(CQErrB);
+    // std::cout << "Write Com B Register: "<< int(comReqRunning2) << std::endl;
+    uint8_t inter = readRegister(Interrupt);
+    // std::cout << "Write Interrupt Register: "<< inter << std::endl;
     // Return Error state
     return retValue;
 }
@@ -1066,7 +1065,7 @@ uint8_t Max14819::enableCyclicSend(uint8_t mc, uint8_t sizeData, uint8_t *pData,
 
     // Test if message is not too long
     if ((sizeData + 2) > MAX_MSG_LENGTH)
-    { //include 1 byte masterc ommand and 1 byte for checksum
+    { // include 1 byte masterc ommand and 1 byte for checksum
         return ERROR;
     }
 

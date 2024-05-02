@@ -22,16 +22,16 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include <iostream>				// Needed for File-IO
-#include <fstream>				// Needed for File-IO
+#include <iostream> // Needed for File-IO
+#include <fstream>	// Needed for File-IO
 
 #include <wiringPi.h>
 
-#include <fcntl.h>   			// Needed for SPI port
-#include <sys/ioctl.h>			// Needed for SPI port
-#include <linux/spi/spidev.h>	// Needed for SPI port
+#include <fcntl.h>			  // Needed for SPI port
+#include <sys/ioctl.h>		  // Needed for SPI port
+#include <linux/spi/spidev.h> // Needed for SPI port
 
-#include <wiringPiSPI.h>		// Needed for SPI communication
+#include <wiringPiSPI.h> // Needed for SPI communication
 #include <cstdint>
 
 //!**** Macros ******************************************************************
@@ -42,16 +42,14 @@
 
 HardwareRaspberry::HardwareRaspberry()
 {
-
 }
-
 
 HardwareRaspberry::~HardwareRaspberry()
 {
 }
 
 //!*****************************************************************************
-//!function :      begin
+//! function :      begin
 //!*****************************************************************************
 //!  \brief        Initialices the Class after generation
 //!
@@ -62,8 +60,9 @@ HardwareRaspberry::~HardwareRaspberry()
 //!  \return       void
 //!
 //!*****************************************************************************
-void HardwareRaspberry::begin(){
-    // Init Wiring Pi
+void HardwareRaspberry::begin()
+{
+	// Init Wiring Pi
 	wiringPiSetup();
 
 	// Init SPI
@@ -72,11 +71,11 @@ void HardwareRaspberry::begin(){
 	wiringPiSPISetup(1, 500000);
 
 	Serial_Write("Init_SPI finished");
-	wait_for(1*1000);
+	wait_for(1 * 1000);
 }
 
 //!*****************************************************************************
-//!function :      IO_Write
+//! function :      IO_Write
 //!*****************************************************************************
 //!  \brief        Sets a pin to the specified logical value
 //!
@@ -92,14 +91,19 @@ void HardwareRaspberry::begin(){
 void HardwareRaspberry::IO_Write(PinNames pinname, uint8_t state)
 {
 	uint8_t pinnumber = get_pinnumber(pinname);
-	switch (state) {
-		case HIGH	: digitalWrite(pinnumber, HIGH); break;
-		case LOW	: digitalWrite(pinnumber, LOW); break;
+	switch (state)
+	{
+	case HIGH:
+		digitalWrite(pinnumber, HIGH);
+		break;
+	case LOW:
+		digitalWrite(pinnumber, LOW);
+		break;
 	}
 }
 
 //!*****************************************************************************
-//!function :      IO_PinMode
+//! function :      IO_PinMode
 //!*****************************************************************************
 //!  \brief        Sets a pin to the specified mode
 //!
@@ -114,11 +118,12 @@ void HardwareRaspberry::IO_Write(PinNames pinname, uint8_t state)
 void HardwareRaspberry::IO_PinMode(PinNames pinname, PinMode mode)
 {
 	uint8_t pinnumber = get_pinnumber(pinname);
-	switch (mode) {
-	case out: 
+	switch (mode)
+	{
+	case out:
 		pinMode(pinnumber, OUTPUT);
 		break;
-	case in_pullup: 
+	case in_pullup:
 		pinMode(pinnumber, INPUT);
 		pullUpDnControl(pinnumber, PUD_UP);
 		break;
@@ -130,7 +135,7 @@ void HardwareRaspberry::IO_PinMode(PinNames pinname, PinMode mode)
 }
 
 //!*****************************************************************************
-//!function :      Serial_Write
+//! function :      Serial_Write
 //!*****************************************************************************
 //!  \brief        Writes a c-string to the serial connection
 //!
@@ -141,13 +146,13 @@ void HardwareRaspberry::IO_PinMode(PinNames pinname, PinMode mode)
 //!  \return       void
 //!
 //!*****************************************************************************
-void HardwareRaspberry::Serial_Write(char const * buf)
+void HardwareRaspberry::Serial_Write(char const *buf)
 {
 	printf("%s\n", buf);
 }
 
 //!*****************************************************************************
-//!function :      Serial_Write
+//! function :      Serial_Write
 //!*****************************************************************************
 //!  \brief        Writes a number to the serial connection
 //!
@@ -164,7 +169,7 @@ void HardwareRaspberry::Serial_Write(int number)
 }
 
 //!*****************************************************************************
-//!function :      SPI_Write
+//! function :      SPI_Write
 //!*****************************************************************************
 //!  \brief        Writes some data to the specified SPI-Connection
 //!
@@ -177,15 +182,15 @@ void HardwareRaspberry::Serial_Write(int number)
 //!  \return       void
 //!
 //!*****************************************************************************
-void HardwareRaspberry::SPI_Write(uint8_t channel, uint8_t * data, uint8_t length)
+void HardwareRaspberry::SPI_Write(uint8_t channel, uint8_t *data, uint8_t length)
 {
-	//printf("SPI sending: %x, %x  ", data[0], data[1]);
+	// printf("SPI sending: %x, %x  ", data[0], data[1]);
 	wiringPiSPIDataRW(channel, data, length);
-	//printf("received %x,%x\n", data[0], data[1]);
+	// printf("received %x,%x\n", data[0], data[1]);
 }
 
 //!*****************************************************************************
-//!function :      wait_for
+//! function :      wait_for
 //!*****************************************************************************
 //!  \brief        delay the thread for the given time
 //!
@@ -198,13 +203,13 @@ void HardwareRaspberry::SPI_Write(uint8_t channel, uint8_t * data, uint8_t lengt
 //!*****************************************************************************
 void HardwareRaspberry::wait_for(uint32_t delay_ms)
 {
-	//printf("Sleep_in\n");
-	usleep(delay_ms*1000);
-	//printf("Sleep_out\n");
+	// printf("Sleep_in\n");
+	usleep(delay_ms * 1000);
+	// printf("Sleep_out\n");
 }
 
 //!*****************************************************************************
-//!function :      get_pinnumber
+//! function :      get_pinnumber
 //!*****************************************************************************
 //!  \brief        returns the pinnumber for the given pin (see enum PinNames)
 //!
@@ -217,35 +222,60 @@ void HardwareRaspberry::wait_for(uint32_t delay_ms)
 //!*****************************************************************************
 uint8_t HardwareRaspberry::get_pinnumber(PinNames pinname)
 {
-	switch (pinname) {
-		case port01CS:		return 10u;			//SPI_CS0	(Pin24, output) return 10u; davor 31
-		case port23CS:		return 11u;			//SPI_CS1	(Pin26, output) return 11u; davor 31
-		case port01IRQ:		return 0u;			//P01_IRQ	(Pin11, input)
-		case port23IRQ:		return 4u;			//P23_IRQ	(Pin16, input)
-		case port0DI:		return 7u;			//P0_DI     (Pin 7, input)
-		case port1DI:		return 15u;			//P1_DI     (Pin 8, input)
-		case port2DI:		return 16u;			//P2_DI     (Pin 10, input)
-		case port3DI:		return 30u;			//P3_DI     (Not avaiable)
+	switch (pinname)
+	{
+	case port01CS:
+		return 10u; // SPI_CS0	(Pin24, output) return 10u; davor 31
+	case port23CS:
+		return 11u; // SPI_CS1	(Pin26, output) return 11u; davor 31
+	case port01IRQ:
+		return 0u; // P01_IRQ	(Pin11, input)
+	case port23IRQ:
+		return 4u; // P23_IRQ	(Pin16, input)
+	case port0DI:
+		return 7u; // P0_DI     (Pin 7, input)
+	case port1DI:
+		return 15u; // P1_DI     (Pin 8, input)
+	case port2DI:
+		return 16u; // P2_DI     (Pin 10, input)
+	case port3DI:
+		return 30u; // P3_DI     (Not avaiable)
 
-		case port0LedGreen: return 9u;			//P0_LED_GN	(Pin 5, output)
-		case port0LedRed:	return 8u;			//P0_LED_RD	(Pin 3, output)
-		case port0LedRxErr:	return 23u;			//P0_RX_ERR	(Pin33, input, pullup)
-		case port0LedRxRdy:	return 24u;			//P0_RX_RDY (Pin35, input, pullup)	
+	case port0LedGreen:
+		return 9u; // P0_LED_GN	(Pin 5, output)
+	case port0LedRed:
+		return 8u; // P0_LED_RD	(Pin 3, output)
+	case port0LedRxErr:
+		return 23u; // P0_RX_ERR	(Pin33, input, pullup)
+	case port0LedRxRdy:
+		return 24u; // P0_RX_RDY (Pin35, input, pullup)
 
-		case port1LedGreen: return 21u;			//P1_LED_GN	(Pin29, output)
-		case port1LedRed:	return 22u;			//P1_LED_RD	(Pin31, output)
-		case port1LedRxErr:	return 2u;			//P1_RX_ERR	(Pin13, input, pullup)
-		case port1LedRxRdy:	return 3u;			//P1_RX_RDY (Pin15, input, pullup)	
+	case port1LedGreen:
+		return 21u; // P1_LED_GN	(Pin29, output)
+	case port1LedRed:
+		return 22u; // P1_LED_RD	(Pin31, output)
+	case port1LedRxErr:
+		return 2u; // P1_RX_ERR	(Pin13, input, pullup)
+	case port1LedRxRdy:
+		return 3u; // P1_RX_RDY (Pin15, input, pullup)
 
-		case port2LedGreen: return 25u;			//P2_LED_GN	(Pin37, output)
-		case port2LedRed:	return 1u;			//P2_LED_RD	(Pin12, output)
-		case port2LedRxErr:	return 27u;			//P2_RX_ERR	(Pin36, input, pullup)
-		case port2LedRxRdy:	return 26u;			//P2_RX_RDY (Pin32, input, pullup)	
- 
-		case port3LedGreen: return 29u;			//P3_LED_GN	(Pin40, output)
-		case port3LedRed:	return 5u;			//P3_LED_RD	(Pin18, output)
-		case port3LedRxErr:	return 6u;			//P3_RX_ERR	(Pin22, input, pullup)
-		case port3LedRxRdy:	return 28u;			//P3_RX_RDY (Pin38, input, pullup)	
+	case port2LedGreen:
+		return 25u; // P2_LED_GN	(Pin37, output)
+	case port2LedRed:
+		return 1u; // P2_LED_RD	(Pin12, output)
+	case port2LedRxErr:
+		return 27u; // P2_RX_ERR	(Pin36, input, pullup)
+	case port2LedRxRdy:
+		return 26u; // P2_RX_RDY (Pin32, input, pullup)
+
+	case port3LedGreen:
+		return 29u; // P3_LED_GN	(Pin40, output)
+	case port3LedRed:
+		return 5u; // P3_LED_RD	(Pin18, output)
+	case port3LedRxErr:
+		return 6u; // P3_RX_ERR	(Pin22, input, pullup)
+	case port3LedRxRdy:
+		return 28u; // P3_RX_RDY (Pin38, input, pullup)
 	}
 	return uint8_t();
 }

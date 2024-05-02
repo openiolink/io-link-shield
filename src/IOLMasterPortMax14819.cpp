@@ -128,22 +128,22 @@ uint8_t IOLMasterPortMax14819::begin()
 
     pDriver_->Serial_Write("WakeUp");
     // Generate wakeup
-    retValue = uint8_t(retValue | pDriver_->wakeUpRequest(port_, &comSpeed_)); //comSpeed as a pointer gets value in the function wakeUpRequest
+    retValue = uint8_t(retValue | pDriver_->wakeUpRequest(port_, &comSpeed_)); // comSpeed as a pointer gets value in the function wakeUpRequest
     if (retValue == ERROR)
     {
         pDriver_->Serial_Write("Error wakeup driver01 PortA");
-        deviceConnection=1;
+        deviceConnection = 1;
     }
     else
     {
-        deviceConnection=0;
+        deviceConnection = 0;
         sprintf(buf, "Communication established with %d bauds\n", comSpeed_); // TODO:
         pDriver_->Serial_Write(buf);
         // TODO: Serial.print("Communication established with ");
         // TODO: Serial.print(comSpeed_);
         // TODO: Serial.print(" Baud/s \n");
         // BOS DEBUG
-//        pDriver_->wait_for(100);
+        //        pDriver_->wait_for(100);
         // BOS DEBUG
 
         pDriver_->Serial_Write("Device");
@@ -151,288 +151,285 @@ uint8_t IOLMasterPortMax14819::begin()
         // M-sequence Capability (IOL-Specification page: 239)
         readDirectParameterPage(IOL::PAGE::M_SEQ_CAP, pData);
         mSequenceType_ = uint8_t((pData[0] >> 1) & 0x07); // shift 1 to the right (first bit is ISDU support bit), clear all bits except first three (get a range of possible values: 0 - 7)
-        //cout<<"MSequence Type: "<<int(mSequenceType_)<<endl;
-        //RevisionID IOL-Version
+        // cout<<"MSequence Type: "<<int(mSequenceType_)<<endl;
+        // RevisionID IOL-Version
         readDirectParameterPage(IOL::PAGE::REVISION_ID, pData);
         RevisionID_ = uint8_t(pData[0]);
         // ProcessDataIn
         readDirectParameterPage(IOL::PAGE::PD_IN, pData);
-        ProcessDataIn_ = uint8_t(pData[0] & 0x1F); // get pData in Range: 0 - 31 (5 Bits)
+        ProcessDataIn_ = uint8_t(pData[0] & 0x1F);         // get pData in Range: 0 - 31 (5 Bits)
         ProcessDataInByte_ = uint8_t((pData[0] >> 7) & 1); // read last bit of the Byte
-        //cout<<"ProcessDataIn_: "<<int(ProcessDataIn_)<<endl;
-        //cout<<"ProcessDataInByte_: "<<int(ProcessDataInByte_)<<endl;
-        
+        // cout<<"ProcessDataIn_: "<<int(ProcessDataIn_)<<endl;
+        // cout<<"ProcessDataInByte_: "<<int(ProcessDataInByte_)<<endl;
+
         // ProcessDataOut
         readDirectParameterPage(IOL::PAGE::PD_OUT, pData);
-        ProcessDataOut_ = uint8_t(pData[0] & 0x1F); // get pData in Range: 0 - 7
+        ProcessDataOut_ = uint8_t(pData[0] & 0x1F);         // get pData in Range: 0 - 7
         ProcessDataOutByte_ = uint8_t((pData[0] >> 7) & 1); // read last bit of the Byte
-        //cout<<"ProcessDataOut_: "<<int(ProcessDataOut_)<<endl;
-        //cout<<"ProcessDataOutByte_: "<<int(ProcessDataOutByte_)<<endl;
+        // cout<<"ProcessDataOut_: "<<int(ProcessDataOut_)<<endl;
+        // cout<<"ProcessDataOutByte_: "<<int(ProcessDataOutByte_)<<endl;
 
-        //PDin/out OD length calculation==================================================
-        uint8_t ProcessDataInLength=0;
-        uint8_t ProcessDataOutLength=0;
+        // PDin/out OD length calculation==================================================
+        uint8_t ProcessDataInLength = 0;
+        uint8_t ProcessDataOutLength = 0;
         //======FIRST TABLE==== IOL-Spec (page 240, Table B.6)
         //=========PDIN (first table)========
-        if(ProcessDataInByte_) 
+        if (ProcessDataInByte_)
         {
-            switch(ProcessDataIn_)
+            switch (ProcessDataIn_)
             {
-                case 0||1:
-                cout<<"ERROR - Reserved Length of ProcessDataIn_"<<endl;
+            case 0 || 1:
+                cout << "ERROR - Reserved Length of ProcessDataIn_" << endl;
                 break;
-                case 2 ... 31:
-                ProcessDataInLength = ProcessDataIn_+1;
+            case 2 ... 31:
+                ProcessDataInLength = ProcessDataIn_ + 1;
                 break;
-                default:
-                cout<<"ERROR - Length of ProcessDataIn_ out of range_1"<<endl;
+            default:
+                cout << "ERROR - Length of ProcessDataIn_ out of range_1" << endl;
             }
         }
         else
         {
-            switch(ProcessDataIn_)
+            switch (ProcessDataIn_)
             {
-                case 0:
-                cout<<"ERROR - Reserved Length of ProcessDataIn_"<<endl;
+            case 0:
+                cout << "ERROR - Reserved Length of ProcessDataIn_" << endl;
                 break;
-                case 1 ... 8:
-                ProcessDataInLength=1;
+            case 1 ... 8:
+                ProcessDataInLength = 1;
                 break;
-                case 9 ... 16:
-                ProcessDataInLength=2;
+            case 9 ... 16:
+                ProcessDataInLength = 2;
                 break;
-                default:
-                cout<<"ERROR - Length of ProcessDataIn_ out of range_2"<<endl;
+            default:
+                cout << "ERROR - Length of ProcessDataIn_ out of range_2" << endl;
             }
-
         }
 
         //========PDOUT (first table )======== (IOL-Specification, page 240, Table B.6)
 
-        if(ProcessDataOutByte_)
+        if (ProcessDataOutByte_)
         {
-            switch(ProcessDataOut_)
+            switch (ProcessDataOut_)
             {
-                case 0||1:
-                cout<<"ERROR - Reserved Length of ProcessDataIn_"<<endl;
+            case 0 || 1:
+                cout << "ERROR - Reserved Length of ProcessDataIn_" << endl;
                 break;
-                case 2 ... 31:
-                ProcessDataOutLength = ProcessDataOut_+1;
+            case 2 ... 31:
+                ProcessDataOutLength = ProcessDataOut_ + 1;
                 break;
-                default:
-                cout<<"ERROR - Length of ProcessDataIn_ out of range_3"<<endl;
+            default:
+                cout << "ERROR - Length of ProcessDataIn_ out of range_3" << endl;
             }
         }
         else
         {
-            switch(ProcessDataOut_)
+            switch (ProcessDataOut_)
             {
-                case 0:
+            case 0:
                 break;
-                case 1 ... 8:
-                ProcessDataOutLength=1;
+            case 1 ... 8:
+                ProcessDataOutLength = 1;
                 break;
-                case 9 ...16:
-                ProcessDataOutLength=2;
+            case 9 ... 16:
+                ProcessDataOutLength = 2;
                 break;
-                default:
-                cout<<"ERROR - Length of ProcessDataIn_ out of range_4"<<endl;
+            default:
+                cout << "ERROR - Length of ProcessDataIn_ out of range_4" << endl;
             }
-
         }
 
         //========SECOND TABLE======== (IOL Specification, page 225, Table A.10)
-        if((ProcessDataInLength==0)&&(ProcessDataOutLength==0))
+        if ((ProcessDataInLength == 0) && (ProcessDataOutLength == 0))
         {
-            switch(mSequenceType_)
+            switch (mSequenceType_)
             {
-                case 0:
-                OnRequestData_=1;
-                mSequenceType_=IOL::M_TYPE_0;
+            case 0:
+                OnRequestData_ = 1;
+                mSequenceType_ = IOL::M_TYPE_0;
                 break;
-                case 1:
-                OnRequestData_=2;
-                mSequenceType_=IOL::M_TYPE_1_X; //TYPE_1_2
+            case 1:
+                OnRequestData_ = 2;
+                mSequenceType_ = IOL::M_TYPE_1_X; // TYPE_1_2
                 break;
-                case 6:
-                OnRequestData_=8;
-                mSequenceType_=IOL::M_TYPE_1_X; //TYPE_1_V
+            case 6:
+                OnRequestData_ = 8;
+                mSequenceType_ = IOL::M_TYPE_1_X; // TYPE_1_V
                 break;
-                case 7:
-                OnRequestData_=32;
-                mSequenceType_=IOL::M_TYPE_1_X; //TYPE_1_V
+            case 7:
+                OnRequestData_ = 32;
+                mSequenceType_ = IOL::M_TYPE_1_X; // TYPE_1_V
                 break;
-                default:
-                cout<< "ERROR - no matching M-Sequence Type - Length"<<endl;
+            default:
+                cout << "ERROR - no matching M-Sequence Type - Length" << endl;
             }
         }
-        else if((ProcessDataInLength==1)&&(ProcessDataOutLength==0)&&(mSequenceType_==0))
+        else if ((ProcessDataInLength == 1) && (ProcessDataOutLength == 0) && (mSequenceType_ == 0))
         {
-            OnRequestData_=1;
-            mSequenceType_=IOL::M_TYPE_2_X; //TYPE_2_1
+            OnRequestData_ = 1;
+            mSequenceType_ = IOL::M_TYPE_2_X; // TYPE_2_1
         }
-        else if((ProcessDataInLength==2)&&(ProcessDataOutLength==0)&&(mSequenceType_==0))
+        else if ((ProcessDataInLength == 2) && (ProcessDataOutLength == 0) && (mSequenceType_ == 0))
         {
-            OnRequestData_=1;
-            mSequenceType_=IOL::M_TYPE_2_X; //TYPE_2_2
+            OnRequestData_ = 1;
+            mSequenceType_ = IOL::M_TYPE_2_X; // TYPE_2_2
         }
-        else if((ProcessDataInLength==0)&&(ProcessDataOutLength==1)&&(mSequenceType_==0))
+        else if ((ProcessDataInLength == 0) && (ProcessDataOutLength == 1) && (mSequenceType_ == 0))
         {
-            OnRequestData_=1;
-            mSequenceType_=IOL::M_TYPE_2_X; //TYPE_2_3
+            OnRequestData_ = 1;
+            mSequenceType_ = IOL::M_TYPE_2_X; // TYPE_2_3
         }
-        else if((ProcessDataInLength==0)&&(ProcessDataOutLength==2)&&(mSequenceType_==0))
+        else if ((ProcessDataInLength == 0) && (ProcessDataOutLength == 2) && (mSequenceType_ == 0))
         {
-            OnRequestData_=1;
-            mSequenceType_=IOL::M_TYPE_2_X; //TYPE_2_4
+            OnRequestData_ = 1;
+            mSequenceType_ = IOL::M_TYPE_2_X; // TYPE_2_4
         }
-        else if((ProcessDataInLength==1)&&(ProcessDataOutLength==1)&&(mSequenceType_==0))
+        else if ((ProcessDataInLength == 1) && (ProcessDataOutLength == 1) && (mSequenceType_ == 0))
         {
-            OnRequestData_=1;
-            mSequenceType_=IOL::M_TYPE_2_X; //TYPE_2_5
+            OnRequestData_ = 1;
+            mSequenceType_ = IOL::M_TYPE_2_X; // TYPE_2_5
         }
-        else if((ProcessDataInLength==2)&&(ProcessDataOutLength==(1||2))&&(mSequenceType_==0))
+        else if ((ProcessDataInLength == 2) && (ProcessDataOutLength == (1 || 2)) && (mSequenceType_ == 0))
         {
-            OnRequestData_=1;
-            mSequenceType_=IOL::M_TYPE_2_X; //TYPE_2_V
+            OnRequestData_ = 1;
+            mSequenceType_ = IOL::M_TYPE_2_X; // TYPE_2_V
         }
-        else if((ProcessDataInLength==(1||2))&&(ProcessDataOutLength==2)&&(mSequenceType_==0))
+        else if ((ProcessDataInLength == (1 || 2)) && (ProcessDataOutLength == 2) && (mSequenceType_ == 0))
         {
-            OnRequestData_=1;
-            mSequenceType_=IOL::M_TYPE_2_X; //TYPE_2_V
+            OnRequestData_ = 1;
+            mSequenceType_ = IOL::M_TYPE_2_X; // TYPE_2_V
         }
-        //SECOND HALF OF TABLE==
-        else if((ProcessDataInLength>=0)&&(ProcessDataOutLength>=3)&&(mSequenceType_==4))
+        // SECOND HALF OF TABLE==
+        else if ((ProcessDataInLength >= 0) && (ProcessDataOutLength >= 3) && (mSequenceType_ == 4))
         {
-            OnRequestData_=1;
-            mSequenceType_=IOL::M_TYPE_2_X; //TYPE_2_V
+            OnRequestData_ = 1;
+            mSequenceType_ = IOL::M_TYPE_2_X; // TYPE_2_V
         }
-        else if((ProcessDataInLength>=3)&&(ProcessDataOutLength>=0)&&(mSequenceType_==4))
+        else if ((ProcessDataInLength >= 3) && (ProcessDataOutLength >= 0) && (mSequenceType_ == 4))
         {
-            OnRequestData_=1;
-            mSequenceType_=IOL::M_TYPE_2_X; //TYPE_2_V
+            OnRequestData_ = 1;
+            mSequenceType_ = IOL::M_TYPE_2_X; // TYPE_2_V
         }
-        else if((ProcessDataInLength>0)&&(ProcessDataOutLength>=0)&&(mSequenceType_==5))
+        else if ((ProcessDataInLength > 0) && (ProcessDataOutLength >= 0) && (mSequenceType_ == 5))
         {
-            OnRequestData_=2;
-            mSequenceType_=IOL::M_TYPE_2_X; //TYPE_2_V
+            OnRequestData_ = 2;
+            mSequenceType_ = IOL::M_TYPE_2_X; // TYPE_2_V
         }
-        else if((ProcessDataInLength>=0)&&(ProcessDataOutLength>0)&&(mSequenceType_==5))
+        else if ((ProcessDataInLength >= 0) && (ProcessDataOutLength > 0) && (mSequenceType_ == 5))
         {
-            OnRequestData_=2;
-            mSequenceType_=IOL::M_TYPE_2_X; //TYPE_2_V
+            OnRequestData_ = 2;
+            mSequenceType_ = IOL::M_TYPE_2_X; // TYPE_2_V
         }
-        else if((ProcessDataInLength>0)&&(ProcessDataOutLength>=0)&&(mSequenceType_==6))
+        else if ((ProcessDataInLength > 0) && (ProcessDataOutLength >= 0) && (mSequenceType_ == 6))
         {
-            OnRequestData_=8;
-            mSequenceType_=IOL::M_TYPE_2_X; //TYPE_2_V
+            OnRequestData_ = 8;
+            mSequenceType_ = IOL::M_TYPE_2_X; // TYPE_2_V
         }
-        else if((ProcessDataInLength>=0)&&(ProcessDataOutLength>0)&&(mSequenceType_==6))
+        else if ((ProcessDataInLength >= 0) && (ProcessDataOutLength > 0) && (mSequenceType_ == 6))
         {
-            OnRequestData_=8;
-            mSequenceType_=IOL::M_TYPE_2_X; //TYPE_2_V
+            OnRequestData_ = 8;
+            mSequenceType_ = IOL::M_TYPE_2_X; // TYPE_2_V
         }
-        else if((ProcessDataInLength>0)&&(ProcessDataOutLength>=0)&&(mSequenceType_==7))
+        else if ((ProcessDataInLength > 0) && (ProcessDataOutLength >= 0) && (mSequenceType_ == 7))
         {
-            OnRequestData_=32;
-            mSequenceType_=IOL::M_TYPE_2_X; //TYPE_2_V
+            OnRequestData_ = 32;
+            mSequenceType_ = IOL::M_TYPE_2_X; // TYPE_2_V
         }
-        else if((ProcessDataInLength>=0)&&(ProcessDataOutLength>0)&&(mSequenceType_==7))
+        else if ((ProcessDataInLength >= 0) && (ProcessDataOutLength > 0) && (mSequenceType_ == 7))
         {
-            OnRequestData_=32;
-            mSequenceType_=IOL::M_TYPE_2_X; //TYPE_2_V
+            OnRequestData_ = 32;
+            mSequenceType_ = IOL::M_TYPE_2_X; // TYPE_2_V
         }
-        //Overwrite calculated values
-        ProcessDataIn_=ProcessDataInLength;
-        ProcessDataOut_=ProcessDataOutLength;
-        //End of Calculation=============================================
+        // Overwrite calculated values
+        ProcessDataIn_ = ProcessDataInLength;
+        ProcessDataOut_ = ProcessDataOutLength;
+        // End of Calculation=============================================
 
         // VendorID (writeen in string)
-        readDirectParameterPage(IOL::PAGE::VENDOR_ID1, pData);     //MSB = Most Significant Bit
-        readDirectParameterPage(IOL::PAGE::VENDOR_ID2, pData + 1); //LSB = Least Significant Bit
+        readDirectParameterPage(IOL::PAGE::VENDOR_ID1, pData);     // MSB = Most Significant Bit
+        readDirectParameterPage(IOL::PAGE::VENDOR_ID2, pData + 1); // LSB = Least Significant Bit
         VendorID_ = uint16_t((pData[0] << 8) | pData[1]);
         // DeviceID
-        readDirectParameterPage(IOL::PAGE::DEVICE_ID1, pData); //MSB
+        readDirectParameterPage(IOL::PAGE::DEVICE_ID1, pData); // MSB
         readDirectParameterPage(IOL::PAGE::DEVICE_ID2, pData + 1);
-        readDirectParameterPage(IOL::PAGE::DEVICE_ID3, pData + 2); //LSB
+        readDirectParameterPage(IOL::PAGE::DEVICE_ID3, pData + 2); // LSB
         DeviceID_ = (pData[0] << 16) | (pData[1] << 8) | pData[2];
 
-        //quick fix BES (OD Data = 2 Byte anstatt 1 Byte)
-        if(DeviceID_==132099)
+        // quick fix BES (OD Data = 2 Byte anstatt 1 Byte)
+        if (DeviceID_ == 132099)
         {
-            OnRequestData_=2;
+            OnRequestData_ = 2;
         }
-      
 
         sprintf(buf, "Vendor ID: %d, Device ID: %d, MSequenceType: %d, ProcessDataIn: %d, ProcessDataOut: %d, OD: %d, RevisionID: %d\n", VendorID_, DeviceID_, mSequenceType_, ProcessDataIn_, ProcessDataOut_, OnRequestData_, RevisionID_);
         pDriver_->Serial_Write(buf);
-    
 
-    if (DeviceID_ == 263955) { //TODO: BCM timing problem, check if necessary
-    pDriver_->wait_for(1000);
-    }
-    //std::string ioddRev("1.1");
-    //std::shared_ptr<std::string> parsedIODD = iodd::IoddStore::getInstance().getIoddFile(VendorID_, DeviceID_, ioddRev);
-    //std::shared_ptr<std::string> parsedIODD = iodd::IoddStore::getInstance().getIoddFile(VendorID_, uint32_t(917761), ioddRev);
-    //cout << *parsedIODD << endl;
-
-    //for (auto it=parsedIODD.begin(); it != parsedIODD.end(); ++it)
-    //{
-    //    cout << ' ' << *it;  
-    //}
-    
-    //cout << parsedIODD << endl;
-
-    // Switch from STARTUP Mode directly (without PREOPERATE) to OPERATE Mode (IOL-Spec page 75)
-    uint8_t value[1] = {IOL::MC::DEV_OPERATE};
-    if (pDriver_->writeData(IOL::MC::PAGE_WRITE, 1, value, 1, IOL::M_TYPE_0, port_) == ERROR)
-    {
-        sprintf(buf, "Error operate driver01 PortA"); // TODO:
-        pDriver_->Serial_Write(buf);
-    }
-    if(ProcessDataOut_)
-    {
-        //ProzessData initial mit 0 Beschreiben
-        vector<uint8_t>pDataOut;
-        for(uint8_t i=0; i<ProcessDataOut_;i++)
-        {
-            pDataOut.push_back(0);
+        if (DeviceID_ == 263955)
+        { // TODO: BCM timing problem, check if necessary
+            pDriver_->wait_for(1000);
         }
-        get_PDclass()->write_procDataOut(pDataOut);
+        // std::string ioddRev("1.1");
+        // std::shared_ptr<std::string> parsedIODD = iodd::IoddStore::getInstance().getIoddFile(VendorID_, DeviceID_, ioddRev);
+        // std::shared_ptr<std::string> parsedIODD = iodd::IoddStore::getInstance().getIoddFile(VendorID_, uint32_t(917761), ioddRev);
+        // cout << *parsedIODD << endl;
 
-        //MC für valide PDout Daten senden
-        pDriver_->wait_for(200);
-        uint8_t value2[ProcessDataOut_+OnRequestData_];
-        for(int i=0;i<ProcessDataOut_+OnRequestData_;i++)
+        // for (auto it=parsedIODD.begin(); it != parsedIODD.end(); ++it)
+        //{
+        //     cout << ' ' << *it;
+        // }
+
+        // cout << parsedIODD << endl;
+
+        // Switch from STARTUP Mode directly (without PREOPERATE) to OPERATE Mode (IOL-Spec page 75)
+        uint8_t value[1] = {IOL::MC::DEV_OPERATE};
+        if (pDriver_->writeData(IOL::MC::PAGE_WRITE, 1, value, 1, IOL::M_TYPE_0, port_) == ERROR)
         {
-            if(i==(ProcessDataOut_))
+            sprintf(buf, "Error operate driver01 PortA"); // TODO:
+            pDriver_->Serial_Write(buf);
+        }
+        if (ProcessDataOut_)
+        {
+            // ProzessData initial mit 0 Beschreiben
+            vector<uint8_t> pDataOut;
+            for (uint8_t i = 0; i < ProcessDataOut_; i++)
             {
-                value2[i]=IOL::MC::PDOUT_VALID; //place MC on first Byte of OD Data
+                pDataOut.push_back(0);
             }
-            else
+            get_PDclass()->write_procDataOut(pDataOut);
+
+            // MC für valide PDout Daten senden
+            pDriver_->wait_for(200);
+            uint8_t value2[ProcessDataOut_ + OnRequestData_];
+            for (int i = 0; i < ProcessDataOut_ + OnRequestData_; i++)
             {
-                value2[i]=0;
+                if (i == (ProcessDataOut_))
+                {
+                    value2[i] = IOL::MC::PDOUT_VALID; // place MC on first Byte of OD Data
+                }
+                else
+                {
+                    value2[i] = 0;
+                }
+            }
+            cout << "PDOUT erforderlicher Mastercommand wurde gesendet" << endl;
+
+            pDriver_->writeData(IOL::MC::PAGE_WRITE, ProcessDataOut_ + OnRequestData_, value2, 1, mSequenceType_, port_);
+
+            // quick fix BOS0285
+            // first message doesn't send the right bits (parity error or something else is the fault)
+            if (DeviceID_ == 264968)
+            {
+                vector<uint8_t> oData;
+                for (uint8_t i = 0; i < 2; i++)
+                {
+                    pDriver_->wait_for(10);
+                    readISDU(oData, 0x0010, 0x00);
+                    oData.clear();
+                }
             }
         }
-        cout<<"PDOUT erforderlicher Mastercommand wurde gesendet"<<endl;
-        
-        pDriver_->writeData(IOL::MC::PAGE_WRITE,ProcessDataOut_+OnRequestData_,value2,1,mSequenceType_,port_);
-    
-        //quick fix BOS0285
-        //first message doesn't send the right bits (parity error or something else is the fault)
-        if(DeviceID_==264968)
-        {
-            vector<uint8_t> oData;
-            for(uint8_t i=0;i<2;i++)
-            {
-                pDriver_->wait_for(10);
-                readISDU(oData,0x0010,0x00);
-                oData.clear();
-            }
-        }
-    }
-    get_PDclass()->set_iodd(VendorID_, DeviceID_, RevisionID_);
-    //pDriver_->wait_for(200);
+        get_PDclass()->set_iodd(VendorID_, DeviceID_, RevisionID_);
+        // pDriver_->wait_for(200);
     }
     return retValue;
 }
@@ -451,7 +448,7 @@ uint8_t IOLMasterPortMax14819::begin()
 //!*******************************************************************************
 uint8_t IOLMasterPortMax14819::end()
 {
-   // cout << "VendorID: " << VendorID_ << " DeviceID: " << DeviceID_ << endl;
+    // cout << "VendorID: " << VendorID_ << " DeviceID: " << DeviceID_ << endl;
     uint8_t retValue = SUCCESS;
 
     pDriver_->Serial_Write("Shutdown");
@@ -479,7 +476,7 @@ uint8_t IOLMasterPortMax14819::end()
 //!
 //!*******************************************************************************
 
-uint8_t IOLMasterPortMax14819::readPD(vector<uint8_t>& pData) //wird aktuell verwendet
+uint8_t IOLMasterPortMax14819::readPD(vector<uint8_t> &pData) // wird aktuell verwendet
 {
     uint8_t retValue = SUCCESS;
     uint8_t sizeAnswer = ProcessDataIn_ + OnRequestData_;
@@ -488,23 +485,24 @@ uint8_t IOLMasterPortMax14819::readPD(vector<uint8_t>& pData) //wird aktuell ver
     {
         vector<uint8_t> pOut;
         pDriver_->wait_for(10);
-        vector<uint8_t>  tmp1 = pdclass.get_procDataOut();
-        if (tmp1.size() != sizeAnswer) {
+        vector<uint8_t> tmp1 = pdclass.get_procDataOut();
+        if (tmp1.size() != sizeAnswer)
+        {
             tmp1.resize(sizeAnswer);
-         }
-       for(int i=0;i<tmp1.size();i++)
-       {
-         // cout<<"Daten: "<<int(tmp1[i])<<endl;
-       }
-     
-        for(uint8_t i=0; i< sizeAnswer;i++)
+        }
+        for (int i = 0; i < tmp1.size(); i++)
+        {
+            // cout<<"Daten: "<<int(tmp1[i])<<endl;
+        }
+
+        for (uint8_t i = 0; i < sizeAnswer; i++)
         {
             auto tmp = tmp1.at(i);
             pOut.push_back(tmp);
         }
-        uint8_t *ppOut=&pOut[0];
+        uint8_t *ppOut = &pOut[0];
         // Send process data request to device
-        retValue = uint8_t(retValue | pDriver_->writeData(IOL::MC::PD_READ, uint8_t(ProcessDataOut_), ppOut,  sizeAnswer, mSequenceType_, port_));
+        retValue = uint8_t(retValue | pDriver_->writeData(IOL::MC::PD_READ, uint8_t(ProcessDataOut_), ppOut, sizeAnswer, mSequenceType_, port_));
         pOut.clear();
     }
     else
@@ -515,7 +513,7 @@ uint8_t IOLMasterPortMax14819::readPD(vector<uint8_t>& pData) //wird aktuell ver
     pDriver_->wait_for(5);
     // read received answer
     retValue = uint8_t(retValue | pDriver_->readPD(pData, sizeAnswer, port_, OnRequestData_));
-    deviceConnection=retValue;
+    deviceConnection = retValue;
     return retValue;
 }
 //!*******************************************************************************
@@ -538,11 +536,11 @@ uint8_t IOLMasterPortMax14819::writePD(uint8_t sizeData, uint8_t *pData, uint8_t
 {
     uint8_t retValue = SUCCESS;
     pDriver_->wait_for(10);
-    for(int i=0;i<sizeData;i++)
+    for (int i = 0; i < sizeData; i++)
     {
-       // cout<<"Daten: "<<int(pData[i])<<endl;
+        // cout<<"Daten: "<<int(pData[i])<<endl;
     }
-    retValue = uint8_t(retValue | pDriver_->writeData(IOL::MC::PAGE_WRITE, ProcessDataOut_+OnRequestData_, pData, sizeAnswer, mSequenceType_, port_)); //Write Data with PAGE_WRITE MC because of PDValid
+    retValue = uint8_t(retValue | pDriver_->writeData(IOL::MC::PAGE_WRITE, ProcessDataOut_ + OnRequestData_, pData, sizeAnswer, mSequenceType_, port_)); // Write Data with PAGE_WRITE MC because of PDValid
     return retValue;
 }
 //!*******************************************************************************
@@ -560,9 +558,9 @@ uint8_t IOLMasterPortMax14819::writePD(uint8_t sizeData, uint8_t *pData, uint8_t
 //!  \return        0 if success
 //!
 //!*******************************************************************************
-uint8_t IOLMasterPortMax14819::readISDU(vector<uint8_t>& oData, uint16_t index, uint8_t subIndex)
+uint8_t IOLMasterPortMax14819::readISDU(vector<uint8_t> &oData, uint16_t index, uint8_t subIndex)
 {
-    uint8_t sizeAnswer=32;
+    uint8_t sizeAnswer = 32;
     uint8_t retValue = SUCCESS;
     uint8_t iService = 0;
     uint8_t highIndex = (index & 0xFF00) >> 8;
@@ -570,11 +568,11 @@ uint8_t IOLMasterPortMax14819::readISDU(vector<uint8_t>& oData, uint16_t index, 
     vector<uint8_t> isduDataFrame;
     if (index < 256)
     {
-        if (subIndex == 0) //subindex 0 is used to reference the entire data object
+        if (subIndex == 0) // subindex 0 is used to reference the entire data object
         {
             cout << "8 Bit" << endl;
             iService = uint8_t((IOL::ISDU::READ_REQ_8BIT << 4) + 0x3u);
-            cout<<"\nvar 1 iService: "<<int(iService)<<endl;
+            cout << "\nvar 1 iService: " << int(iService) << endl;
             isduDataFrame.push_back(iService);
             isduDataFrame.push_back(lowIndex);
         }
@@ -582,7 +580,7 @@ uint8_t IOLMasterPortMax14819::readISDU(vector<uint8_t>& oData, uint16_t index, 
         {
             cout << "8 Bit + Subindex" << endl;
             iService = uint8_t((IOL::ISDU::READ_REQ_8BIT_SUB << 4) + 0x4u);
-            cout<<"\nvar 2 iService: "<<int(iService)<<endl;
+            cout << "\nvar 2 iService: " << int(iService) << endl;
             isduDataFrame.push_back(iService);
             isduDataFrame.push_back(lowIndex);
             isduDataFrame.push_back(subIndex);
@@ -592,131 +590,135 @@ uint8_t IOLMasterPortMax14819::readISDU(vector<uint8_t>& oData, uint16_t index, 
     {
         cout << "16 Bit + Subindex" << endl;
         iService = uint8_t((IOL::ISDU::READ_REQ_16BIT << 4) + 0x5u);
-        cout<<"\nvar 3 iService: "<<int(iService)<<endl;
+        cout << "\nvar 3 iService: " << int(iService) << endl;
         isduDataFrame.push_back(iService);
         isduDataFrame.push_back(highIndex);
         isduDataFrame.push_back(lowIndex);
         isduDataFrame.push_back(subIndex);
     }
-    //Calculate Checksum
+    // Calculate Checksum
     uint8_t chkpdu = pDriver_->calculateCHKPDU(isduDataFrame);
     isduDataFrame.push_back(chkpdu);
-    cout<<"chkpdu: "<<int(chkpdu)<<endl;
-    int8_t byte2send = OnRequestData_ - isduDataFrame.size();//-ProcessDataOut_;
-    if (byte2send<0) byte2send=0;
-        cout<<"byte2send: "<<int(byte2send)<<endl;
+    cout << "chkpdu: " << int(chkpdu) << endl;
+    int8_t byte2send = OnRequestData_ - isduDataFrame.size(); //-ProcessDataOut_;
+    if (byte2send < 0)
+        byte2send = 0;
+    cout << "byte2send: " << int(byte2send) << endl;
     for (uint8_t i = 0; i < byte2send; i++)
     {
         isduDataFrame.push_back(0x00u);
-        cout<<"bufferauffüllen: 0x00"<<endl;
+        cout << "bufferauffüllen: 0x00" << endl;
     }
 
     vector<uint8_t> pdout;
-    pdout=get_PDclass()->get_procDataOut();
-    uint8_t *pdoutptr=&pdout[0];
+    pdout = get_PDclass()->get_procDataOut();
+    uint8_t *pdoutptr = &pdout[0];
 
     //==== Send ISDU - Request to device -> ISDU Answer from device ====
-    
-    uint8_t zaehlvar=0;
-    uint8_t timeout=0;
+
+    uint8_t zaehlvar = 0;
+    uint8_t timeout = 0;
     vector<uint8_t> vectortosend;
-    cout<<"isduDataFramesize(): "<<int(isduDataFrame.size())<<endl;
+    cout << "isduDataFramesize(): " << int(isduDataFrame.size()) << endl;
 
-        //Send request to device
-        while(((zaehlvar)*OnRequestData_)<(isduDataFrame.size()))//Send Request to device
+    // Send request to device
+    while (((zaehlvar)*OnRequestData_) < (isduDataFrame.size())) // Send Request to device
+    {
+        // cout<<"WhileSchleife"<<endl;
+        vectortosend.clear();
+        for (uint8_t i = 0; i < ProcessDataOut_; i++)
         {
-           // cout<<"WhileSchleife"<<endl;
-            vectortosend.clear();
-            for(uint8_t i=0;i<ProcessDataOut_;i++)
-            {
-              //  cout<<"PDOUT!!!!"<<endl;
-                vectortosend.push_back(uint8_t(0x00));
-            }
-            for(uint8_t i=0;i<OnRequestData_;i++)
-            {
-               // cout<<"Forschleife"<<endl;
-                vectortosend.push_back(isduDataFrame[((zaehlvar*OnRequestData_)+i)]); //Send as much Data as the device can send
-               // cout<<"vectorzugriff erfolgreich"<<endl;
-            }
-            if(zaehlvar==0)
-            {
-              //  cout<<"ifbedingung"<<endl;
-                //cout<<"vectortosend.size(): "<<int(vectortosend.size())<<endl;
-                retValue = uint8_t(retValue | pDriver_->writeISDU(IOL::MC::OD_WRITE,0, mSequenceType_, port_, vectortosend, ProcessDataOut_, isduDataFrame));
-                pDriver_->wait_for(5);
-            }
-            else
-            {
-               // cout<<"elseBedingung"<<endl;
-                //cout<<"vectortosend.size(): "<<int(vectortosend.size())<<endl;
-                retValue = uint8_t(retValue | pDriver_->writeISDU(uint8_t(IOL::MC::OD_FLOWCTRL+zaehlvar),0, mSequenceType_, port_, vectortosend, ProcessDataOut_, isduDataFrame));
-                pDriver_->wait_for(5);
-            }
-            vectortosend.clear();
-            if(zaehlvar==15)
-            {
-                if(timeout>=3)return retValue=ERROR; //Timeout löst aus
-                timeout++;
-                zaehlvar=0;
-            }
-            else
-            {
-                zaehlvar++;
-            }
+            //  cout<<"PDOUT!!!!"<<endl;
+            vectortosend.push_back(uint8_t(0x00));
         }
-        timeout=0;
-       // cout<<"try to receive Data"<<endl;
-        //Receive data from device
-        do
+        for (uint8_t i = 0; i < OnRequestData_; i++)
         {
-          //  cout<<"in der whileschleife"<<endl;
-            oData.clear();
-
-            if(ProcessDataOut_)
-            {
-                retValue = uint8_t(retValue | pDriver_->writeData(IOL::MC::OD_READ, pdout.size(), pdoutptr, sizeAnswer, mSequenceType_, port_));
-            }
-            else
-            {
-                retValue = uint8_t(retValue | pDriver_->writeData(IOL::MC::OD_READ, 0, nullptr, sizeAnswer, mSequenceType_, port_));
-            }
+            // cout<<"Forschleife"<<endl;
+            vectortosend.push_back(isduDataFrame[((zaehlvar * OnRequestData_) + i)]); // Send as much Data as the device can send
+            // cout<<"vectorzugriff erfolgreich"<<endl;
+        }
+        if (zaehlvar == 0)
+        {
+            //  cout<<"ifbedingung"<<endl;
+            // cout<<"vectortosend.size(): "<<int(vectortosend.size())<<endl;
+            retValue = uint8_t(retValue | pDriver_->writeISDU(IOL::MC::OD_WRITE, 0, mSequenceType_, port_, vectortosend, ProcessDataOut_, isduDataFrame));
             pDriver_->wait_for(5);
-
-            retValue = uint8_t(retValue | pDriver_->readISDU(oData, OnRequestData_, port_));
-
-            timeout++;
-          //  cout<<int(timeout)<<endl;
-            if(timeout>=254) return retValue=ERROR; //timeout, if device doesn't respond 0 or 1
-
-        }while(oData[0]==1||oData[0]==0);
-
-        sizeAnswer = uint8_t(oData[0]&0xF);
-        
-        int loops=sizeAnswer/OnRequestData_;
-        if(loops<0)loops=0;
-      //  cout<<"loops: "<<int(loops)<<endl;
-        for(int i=0;i<loops;i++)
-        {
-            if(ProcessDataOut_)
-            {
-                retValue = uint8_t(retValue | pDriver_->writeData((225+i), pdout.size(), pdoutptr, sizeAnswer, mSequenceType_, port_));
-            }
-            else
-            {
-                retValue = uint8_t(retValue | pDriver_->writeData((225+i), 0, nullptr, sizeAnswer, mSequenceType_, port_));
-            }
-            pDriver_->wait_for(15);
-            retValue = uint8_t(retValue | pDriver_->readISDU(oData, uint8_t(OnRequestData_), port_));
         }
+        else
+        {
+            // cout<<"elseBedingung"<<endl;
+            // cout<<"vectortosend.size(): "<<int(vectortosend.size())<<endl;
+            retValue = uint8_t(retValue | pDriver_->writeISDU(uint8_t(IOL::MC::OD_FLOWCTRL + zaehlvar), 0, mSequenceType_, port_, vectortosend, ProcessDataOut_, isduDataFrame));
+            pDriver_->wait_for(5);
+        }
+        vectortosend.clear();
+        if (zaehlvar == 15)
+        {
+            if (timeout >= 3)
+                return retValue = ERROR; // Timeout löst aus
+            timeout++;
+            zaehlvar = 0;
+        }
+        else
+        {
+            zaehlvar++;
+        }
+    }
+    timeout = 0;
+    // cout<<"try to receive Data"<<endl;
+    // Receive data from device
+    do
+    {
+        //  cout<<"in der whileschleife"<<endl;
+        oData.clear();
 
-        //vector oData in Format: (iService+length) (Data in Bytes....) (Checksum)
+        if (ProcessDataOut_)
+        {
+            retValue = uint8_t(retValue | pDriver_->writeData(IOL::MC::OD_READ, pdout.size(), pdoutptr, sizeAnswer, mSequenceType_, port_));
+        }
+        else
+        {
+            retValue = uint8_t(retValue | pDriver_->writeData(IOL::MC::OD_READ, 0, nullptr, sizeAnswer, mSequenceType_, port_));
+        }
+        pDriver_->wait_for(5);
 
-        oData.erase(oData.begin()+sizeAnswer-1); //erase iService+length
-        oData.erase(oData.begin()); //erase Checksum
+        retValue = uint8_t(retValue | pDriver_->readISDU(oData, OnRequestData_, port_));
 
-        //vector oData in Format: (Data in Bytes.....)
+        timeout++;
+        //  cout<<int(timeout)<<endl;
+        if (timeout >= 254)
+            return retValue = ERROR; // timeout, if device doesn't respond 0 or 1
 
-        return retValue;
+    } while (oData[0] == 1 || oData[0] == 0);
+
+    sizeAnswer = uint8_t(oData[0] & 0xF);
+
+    int loops = sizeAnswer / OnRequestData_;
+    if (loops < 0)
+        loops = 0;
+    //  cout<<"loops: "<<int(loops)<<endl;
+    for (int i = 0; i < loops; i++)
+    {
+        if (ProcessDataOut_)
+        {
+            retValue = uint8_t(retValue | pDriver_->writeData((225 + i), pdout.size(), pdoutptr, sizeAnswer, mSequenceType_, port_));
+        }
+        else
+        {
+            retValue = uint8_t(retValue | pDriver_->writeData((225 + i), 0, nullptr, sizeAnswer, mSequenceType_, port_));
+        }
+        pDriver_->wait_for(15);
+        retValue = uint8_t(retValue | pDriver_->readISDU(oData, uint8_t(OnRequestData_), port_));
+    }
+
+    // vector oData in Format: (iService+length) (Data in Bytes....) (Checksum)
+
+    oData.erase(oData.begin() + sizeAnswer - 1); // erase iService+length
+    oData.erase(oData.begin());                  // erase Checksum
+
+    // vector oData in Format: (Data in Bytes.....)
+
+    return retValue;
 
     //}
 }
@@ -739,9 +741,9 @@ uint8_t IOLMasterPortMax14819::readISDU(vector<uint8_t>& oData, uint16_t index, 
 //!  \return        0 if success
 //!
 //!*******************************************************************************
-uint8_t IOLMasterPortMax14819::writeISDU(uint8_t sizeData, vector<uint8_t>& oData, uint16_t index, uint8_t subIndex)
+uint8_t IOLMasterPortMax14819::writeISDU(uint8_t sizeData, vector<uint8_t> &oData, uint16_t index, uint8_t subIndex)
 {
-    uint8_t sizeAnswer=ProcessDataIn_; //CKS
+    uint8_t sizeAnswer = ProcessDataIn_; // CKS
     uint8_t retValue = SUCCESS;
     uint8_t iService = 0;
     uint8_t highIndex = (index & 0xFF00) >> 8;
@@ -749,21 +751,21 @@ uint8_t IOLMasterPortMax14819::writeISDU(uint8_t sizeData, vector<uint8_t>& oDat
     vector<uint8_t> isduDataFrame;
     if (index < 256)
     {
-        if (subIndex == 0) //subindex 0 is used to reference the entire data object
+        if (subIndex == 0) // subindex 0 is used to reference the entire data object
         {
-            //sizeAnswer=2;
-            //cout << "8 Bit" << endl;
+            // sizeAnswer=2;
+            // cout << "8 Bit" << endl;
             iService = uint8_t((IOL::ISDU::WRITE_REQ_8BIT << 4) + sizeData + 0x3u);
-            //cout<<"\nvar 1 iService: "<<int(iService)<<endl;
+            // cout<<"\nvar 1 iService: "<<int(iService)<<endl;
             isduDataFrame.push_back(iService);
             isduDataFrame.push_back(lowIndex);
         }
         else
         {
-            //sizeAnswer=4;
-            //cout << "8 Bit + Subindex" << endl;
+            // sizeAnswer=4;
+            // cout << "8 Bit + Subindex" << endl;
             iService = uint8_t((IOL::ISDU::WRITE_REQ_8BIT_SUB << 4) + sizeData + 0x4u);
-            //cout<<"\nvar 2 iService: "<<int(iService)<<endl;
+            // cout<<"\nvar 2 iService: "<<int(iService)<<endl;
             isduDataFrame.push_back(iService);
             isduDataFrame.push_back(lowIndex);
             isduDataFrame.push_back(subIndex);
@@ -771,89 +773,90 @@ uint8_t IOLMasterPortMax14819::writeISDU(uint8_t sizeData, vector<uint8_t>& oDat
     }
     else
     {
-        //cout << "16 Bit + Subindex" << endl;
+        // cout << "16 Bit + Subindex" << endl;
         iService = uint8_t((IOL::ISDU::WRITE_REQ_16BIT << 4) + sizeData + 0x5u);
-        //cout<<"\nvar 3 iService: "<<int(iService)<<endl;
+        // cout<<"\nvar 3 iService: "<<int(iService)<<endl;
         isduDataFrame.push_back(iService);
         isduDataFrame.push_back(highIndex);
         isduDataFrame.push_back(lowIndex);
         isduDataFrame.push_back(subIndex);
     }
-    
-    //get Data in the isduDataFrame
-    for(int i=0;i<oData.size();i++)
+
+    // get Data in the isduDataFrame
+    for (int i = 0; i < oData.size(); i++)
     {
         isduDataFrame.push_back(oData[i]);
-        //cout<<"oData: "<<int(oData[i])<<endl;
+        // cout<<"oData: "<<int(oData[i])<<endl;
     }
-    //Calculate Checksum
+    // Calculate Checksum
     uint8_t chkpdu = pDriver_->calculateCHKPDU(isduDataFrame);
     isduDataFrame.push_back(chkpdu);
-    //cout<<"chkpdu: "<<int(chkpdu)<<endl;
-    int8_t byte2send = OnRequestData_ - isduDataFrame.size();//-ProcessDataOut_;
-    if (byte2send<0) byte2send=0;
-        //cout<<"byte2send: "<<int(byte2send)<<endl;
+    // cout<<"chkpdu: "<<int(chkpdu)<<endl;
+    int8_t byte2send = OnRequestData_ - isduDataFrame.size(); //-ProcessDataOut_;
+    if (byte2send < 0)
+        byte2send = 0;
+    // cout<<"byte2send: "<<int(byte2send)<<endl;
     for (uint8_t i = 0; i < byte2send; i++)
     {
         isduDataFrame.push_back(0x00u);
-        //cout<<"bufferauffüllen: 0x00"<<endl;
+        // cout<<"bufferauffüllen: 0x00"<<endl;
     }
 
-    vector<uint8_t> pdout;    
-    pdout=get_PDclass()->get_procDataOut();
-    uint8_t *pdoutptr=&pdout[0];
-
+    vector<uint8_t> pdout;
+    pdout = get_PDclass()->get_procDataOut();
+    uint8_t *pdoutptr = &pdout[0];
 
     //==== Send ISDU - Request to device -> ISDU Answer from device ====
-    
-    uint8_t zaehlvar=0;
-    uint8_t timeout=0;
-    vector<uint8_t> vectortosend;
-    //cout<<"isduDataFramesize(): "<<int(isduDataFrame.size())<<endl;
 
-        //Send request to device
-        while(((zaehlvar)*OnRequestData_)<(isduDataFrame.size()))//Send Request to device
+    uint8_t zaehlvar = 0;
+    uint8_t timeout = 0;
+    vector<uint8_t> vectortosend;
+    // cout<<"isduDataFramesize(): "<<int(isduDataFrame.size())<<endl;
+
+    // Send request to device
+    while (((zaehlvar)*OnRequestData_) < (isduDataFrame.size())) // Send Request to device
+    {
+        // cout<<"WhileSchleife"<<endl;
+        vectortosend.clear();
+        for (uint8_t i = 0; i < ProcessDataOut_; i++)
         {
-            //cout<<"WhileSchleife"<<endl;
-            vectortosend.clear();
-            for(uint8_t i=0;i<ProcessDataOut_;i++)
-            {
-                //cout<<"PDOUT!!!!"<<endl;
-                vectortosend.push_back(uint8_t(0x00));
-            }
-            for(uint8_t i=0;i<OnRequestData_;i++)
-            {
-                //cout<<"Forschleife"<<endl;
-                vectortosend.push_back(isduDataFrame[((zaehlvar*OnRequestData_)+i)]); //Send as much Data as the device can send
-                //cout<<"vectorzugriff erfolgreich"<<endl;
-            }
-            if(zaehlvar==0)
-            {
-                //cout<<"ifbedingung"<<endl;
-                //cout<<"vectortosend.size(): "<<int(vectortosend.size())<<endl;
-                retValue = uint8_t(retValue | pDriver_->writeISDU(IOL::MC::OD_WRITE,0, mSequenceType_, port_, vectortosend, ProcessDataOut_, isduDataFrame));
-                pDriver_->wait_for(5);
-            }
-            else
-            {
-                //cout<<"elseBedingung"<<endl;
-                //cout<<"vectortosend.size(): "<<int(vectortosend.size())<<endl;
-                retValue = uint8_t(retValue | pDriver_->writeISDU(uint8_t(IOL::MC::OD_FLOWCTRL+zaehlvar),0, mSequenceType_, port_, vectortosend, ProcessDataOut_, isduDataFrame));
-                pDriver_->wait_for(5);
-            }
-            vectortosend.clear();
-            if(zaehlvar==15)
-            {
-                if(timeout>=3)return retValue=ERROR; //Timeout löst aus
-                timeout++;
-                zaehlvar=0;
-            }
-            else
-            {
-                zaehlvar++;
-            }
+            // cout<<"PDOUT!!!!"<<endl;
+            vectortosend.push_back(uint8_t(0x00));
         }
-        timeout=0;
+        for (uint8_t i = 0; i < OnRequestData_; i++)
+        {
+            // cout<<"Forschleife"<<endl;
+            vectortosend.push_back(isduDataFrame[((zaehlvar * OnRequestData_) + i)]); // Send as much Data as the device can send
+            // cout<<"vectorzugriff erfolgreich"<<endl;
+        }
+        if (zaehlvar == 0)
+        {
+            // cout<<"ifbedingung"<<endl;
+            // cout<<"vectortosend.size(): "<<int(vectortosend.size())<<endl;
+            retValue = uint8_t(retValue | pDriver_->writeISDU(IOL::MC::OD_WRITE, 0, mSequenceType_, port_, vectortosend, ProcessDataOut_, isduDataFrame));
+            pDriver_->wait_for(5);
+        }
+        else
+        {
+            // cout<<"elseBedingung"<<endl;
+            // cout<<"vectortosend.size(): "<<int(vectortosend.size())<<endl;
+            retValue = uint8_t(retValue | pDriver_->writeISDU(uint8_t(IOL::MC::OD_FLOWCTRL + zaehlvar), 0, mSequenceType_, port_, vectortosend, ProcessDataOut_, isduDataFrame));
+            pDriver_->wait_for(5);
+        }
+        vectortosend.clear();
+        if (zaehlvar == 15)
+        {
+            if (timeout >= 3)
+                return retValue = ERROR; // Timeout löst aus
+            timeout++;
+            zaehlvar = 0;
+        }
+        else
+        {
+            zaehlvar++;
+        }
+    }
+    timeout = 0;
     return retValue;
 }
 
@@ -998,9 +1001,9 @@ void IOLMasterPortMax14819::writePage()
 //!  \return       void
 //!
 //!*******************************************************************************
-//void IOLMasterPortMax14819::readISDU() {
+// void IOLMasterPortMax14819::readISDU() {
 //
-//}
+// }
 
 //!*******************************************************************************
 //!  function :    writeISDU
@@ -1014,9 +1017,9 @@ void IOLMasterPortMax14819::writePage()
 //!  \return       void
 //!
 //!*******************************************************************************
-//void IOLMasterPortMax14819::writeISDU() {
+// void IOLMasterPortMax14819::writeISDU() {
 //
-//}
+// }
 
 //!*******************************************************************************
 //!  function :    readDI
@@ -1082,18 +1085,18 @@ void IOLMasterPortMax14819::isDeviceConnected()
 {
     uint8_t retVal = SUCCESS;
     uint8_t pData[3];
-    uint16_t newVendorID=0;
-    uint32_t newDeviceID=0;
-    //cout<<"BEFORE if-Schleife:"<<endl;
-    //check if there has been a device connected
-    if(deviceConnection==0)
+    uint16_t newVendorID = 0;
+    uint32_t newDeviceID = 0;
+    // cout<<"BEFORE if-Schleife:"<<endl;
+    // check if there has been a device connected
+    if (deviceConnection == 0)
     {
-        //cout<<"Device connected"<<endl;
+        // cout<<"Device connected"<<endl;
     }
     else
     {
-        //cout<<"Checking DeviceConnection..."<<endl;
-        retVal=begin(); //initialize port
+        // cout<<"Checking DeviceConnection..."<<endl;
+        retVal = begin(); // initialize port
     }
     return;
 }
@@ -1121,25 +1124,24 @@ tuple<uint8_t, uint8_t, uint8_t> IOLMasterPortMax14819::getLengthParameter()
 //!
 //!*******************************************************************************
 
-
 uint8_t IOLMasterPortMax14819::readErrorRegister()
 {
-    uint8_t retValue=0;
-//        retValue = uint8_t(retValue | pDriver_->writeRegister(0x09u, uint8_t(0x01u | 230400)));
-//        cout << "ISDU ErrorregisterA: "<< int(readRegister(CQErrA)) << endl;
-//        Hardware->wait_for(5);
-//        retValue = (uint8_t)(retValue | pDriver_->writeData(IOL::MC::OD_READ, 0, nullptr, 1, 2, port_)); //trigger "busy"
-//        Hardware->wait_for(5);
-//        cout << "ISDU ErrorregisterA: "<< int(readRegister(CQErrA)) << endl;
-//        retValue = (uint8_t)(retValue | writeData(IOL::MC::OD_READ, 0, nullptr, sizeAnswer, mSeqType, port));
-retValue = pDriver_->readRegister(0x08);
-return retValue;
+    uint8_t retValue = 0;
+    //        retValue = uint8_t(retValue | pDriver_->writeRegister(0x09u, uint8_t(0x01u | 230400)));
+    //        cout << "ISDU ErrorregisterA: "<< int(readRegister(CQErrA)) << endl;
+    //        Hardware->wait_for(5);
+    //        retValue = (uint8_t)(retValue | pDriver_->writeData(IOL::MC::OD_READ, 0, nullptr, 1, 2, port_)); //trigger "busy"
+    //        Hardware->wait_for(5);
+    //        cout << "ISDU ErrorregisterA: "<< int(readRegister(CQErrA)) << endl;
+    //        retValue = (uint8_t)(retValue | writeData(IOL::MC::OD_READ, 0, nullptr, sizeAnswer, mSeqType, port));
+    retValue = pDriver_->readRegister(0x08);
+    return retValue;
 }
-    PDclass* IOLMasterPortMax14819::get_PDclass()
-    {
-        return &pdclass;
-    }
-//uint8_t IOLMasterPortMax14819::readCondition()
+PDclass *IOLMasterPortMax14819::get_PDclass()
+{
+    return &pdclass;
+}
+// uint8_t IOLMasterPortMax14819::readCondition()
 //{
 
 //}
@@ -1158,10 +1160,9 @@ return retValue;
 //!
 //!*******************************************************************************
 
-    PDclass::PDclass()
-    {
-
-    }
+PDclass::PDclass()
+{
+}
 
 //!*******************************************************************************
 //!  function :    ~PDclass
@@ -1176,10 +1177,9 @@ return retValue;
 //!
 //!*******************************************************************************
 
-    PDclass::~PDclass()
-    {
-
-    }
+PDclass::~PDclass()
+{
+}
 
 //!*******************************************************************************
 //!  function :    write_pd_storage
@@ -1194,12 +1194,12 @@ return retValue;
 //!
 //!*******************************************************************************
 
-    void PDclass::write_pd_storage(vector<uint8_t>PData)
-    {
-        procData=PData;
+void PDclass::write_pd_storage(vector<uint8_t> PData)
+{
+    procData = PData;
 
-        return;
-    }
+    return;
+}
 
 //!*******************************************************************************
 //!  function :    write_procDataOut
@@ -1214,12 +1214,12 @@ return retValue;
 //!
 //!*******************************************************************************
 
-    void PDclass::write_procDataOut(vector<uint8_t>PDout)
-    {
-        procDataOut.clear();
-        procDataOut=PDout;
-        return;
-    }
+void PDclass::write_procDataOut(vector<uint8_t> PDout)
+{
+    procDataOut.clear();
+    procDataOut = PDout;
+    return;
+}
 
 //!*******************************************************************************
 //!  function :    get_float
@@ -1234,22 +1234,22 @@ return retValue;
 //!
 //!*******************************************************************************
 
-    vector<float> PDclass::get_float(uint8_t length)
+vector<float> PDclass::get_float(uint8_t length)
+{
+    vector<float> pd_float;
+    uint32_t hilfs_value;
+    float hilfs_float;
+    for (int i = 1; i < length; i = i + 4) // first byte defines the length of the data
     {
-        vector<float> pd_float;
-        uint32_t hilfs_value;
-        float hilfs_float;
-        for(int i=1;i<length;i=i+4) //first byte defines the length of the data
-       {
-            //order of pData: [] = b0, b1, b2, b3
-            //order of newvalue: [] = b3, b2, b1, b0
-            //order of memcpy: [] = b0, b1, b2, b3
-            hilfs_value = ((procData[i+3]) | (procData[i+2] << 8) | (procData[i+1] << 16) | (procData[i] << 24)); //change Data Type (uint8_t -> float) and put Data in right order
-            memcpy(&hilfs_float,&hilfs_value,sizeof(hilfs_float)); //writing the Data as float in the struct
-            pd_float.push_back(hilfs_float);
-        }
-        return pd_float;
+        // order of pData: [] = b0, b1, b2, b3
+        // order of newvalue: [] = b3, b2, b1, b0
+        // order of memcpy: [] = b0, b1, b2, b3
+        hilfs_value = ((procData[i + 3]) | (procData[i + 2] << 8) | (procData[i + 1] << 16) | (procData[i] << 24)); // change Data Type (uint8_t -> float) and put Data in right order
+        memcpy(&hilfs_float, &hilfs_value, sizeof(hilfs_float));                                                    // writing the Data as float in the struct
+        pd_float.push_back(hilfs_float);
     }
+    return pd_float;
+}
 
 //!*******************************************************************************
 //!  function :    get_uint8_t
@@ -1264,17 +1264,17 @@ return retValue;
 //!
 //!*******************************************************************************
 
-    vector<uint8_t> PDclass::get_uint8_t(uint8_t length)
+vector<uint8_t> PDclass::get_uint8_t(uint8_t length)
 
-    {
-        vector<uint8_t> returnData=procData;
+{
+    vector<uint8_t> returnData = procData;
 
-        reverse(returnData.begin(),returnData.end());
+    reverse(returnData.begin(), returnData.end());
 
-        returnData.erase(returnData.begin()+length);
+    returnData.erase(returnData.begin() + length);
 
-        return returnData;
-    }
+    return returnData;
+}
 
 //!*******************************************************************************
 //!  function :    get_procDataOut
@@ -1289,10 +1289,10 @@ return retValue;
 //!
 //!*******************************************************************************
 
-    vector<uint8_t> PDclass::get_procDataOut()
-    {
-        return procDataOut;
-    }
+vector<uint8_t> PDclass::get_procDataOut()
+{
+    return procDataOut;
+}
 
 //!*******************************************************************************
 //!  function :    interpretProcessData()
@@ -1308,22 +1308,22 @@ return retValue;
 //!
 //!*******************************************************************************
 
-  /*  nlohmann::json PDclass::interpretProcessData(IoddManager& instance)
-    {
-        vector<uint8_t> rawProcessData = procData;
-        rawProcessData.erase(rawProcessData.begin()); //first byte defines the length of the data
-        cout << "Vendor ID: " << VendorID <<"  Device ID: " << DeviceID << " iolRev: " << int(iolRev) <<"  ProcessDataSize: " << rawProcessData.size() << endl;
-        std::tuple<nlohmann::json, nlohmann::json> transformedData = instance.interpretProcessData(rawProcessData, VendorID, DeviceID, iolRev);
-        nlohmann::json measurement = std::get<0>(transformedData);
-        nlohmann::json unitInfo = std::get<1>(transformedData);
-        if (measurement.empty())
-        {
-            measurement["rawProcessData"] = rawProcessData;
-        }
-        return measurement;
-    }
-    */
-    //!*******************************************************************************
+/*  nlohmann::json PDclass::interpretProcessData(IoddManager& instance)
+  {
+      vector<uint8_t> rawProcessData = procData;
+      rawProcessData.erase(rawProcessData.begin()); //first byte defines the length of the data
+      cout << "Vendor ID: " << VendorID <<"  Device ID: " << DeviceID << " iolRev: " << int(iolRev) <<"  ProcessDataSize: " << rawProcessData.size() << endl;
+      std::tuple<nlohmann::json, nlohmann::json> transformedData = instance.interpretProcessData(rawProcessData, VendorID, DeviceID, iolRev);
+      nlohmann::json measurement = std::get<0>(transformedData);
+      nlohmann::json unitInfo = std::get<1>(transformedData);
+      if (measurement.empty())
+      {
+          measurement["rawProcessData"] = rawProcessData;
+      }
+      return measurement;
+  }
+  */
+//!*******************************************************************************
 //!  function :    interpretProcessData()
 //!*******************************************************************************
 //!  \brief        get PD Out out of the storage in the right data format (IODD will tell)
@@ -1337,21 +1337,20 @@ return retValue;
 //!
 //!*******************************************************************************
 
-    nlohmann::json PDclass::interpretProcessData(IoddService& instance)
+nlohmann::json PDclass::interpretProcessData(IoddService &instance)
+{
+    vector<uint8_t> rawProcessData = procData;
+    rawProcessData.erase(rawProcessData.begin()); // first byte defines the length of the data
+    // cout << "Vendor ID: " << VendorID << "  Device ID: " << DeviceID << " iolRev: " << int(iolRev) << "  ProcessDataSize: " << rawProcessData.size() << endl;
+    std::tuple<nlohmann::json, nlohmann::json> transformedData = instance.interpretProcessData(rawProcessData, VendorID, DeviceID, iolRev);
+    nlohmann::json measurement = std::get<0>(transformedData);
+    nlohmann::json unitInfo = std::get<1>(transformedData);
+    if (measurement.empty())
     {
-        vector<uint8_t> rawProcessData = procData;
-        rawProcessData.erase(rawProcessData.begin()); //first byte defines the length of the data
-       // cout << "Vendor ID: " << VendorID << "  Device ID: " << DeviceID << " iolRev: " << int(iolRev) << "  ProcessDataSize: " << rawProcessData.size() << endl;
-        std::tuple<nlohmann::json, nlohmann::json> transformedData = instance.interpretProcessData(rawProcessData, VendorID, DeviceID, iolRev);
-        nlohmann::json measurement = std::get<0>(transformedData);
-        nlohmann::json unitInfo = std::get<1>(transformedData);
-        if (measurement.empty())
-        {
-            measurement["rawProcessData"] = rawProcessData;
-        }
-        return measurement;
+        measurement["rawProcessData"] = rawProcessData;
     }
-
+    return measurement;
+}
 
 //!*******************************************************************************
 //!  function :    set_iodd
@@ -1367,12 +1366,12 @@ return retValue;
 //!
 //!*******************************************************************************
 
-    void PDclass::set_iodd(uint16_t VendorID_, uint32_t DeviceID_, uint8_t RevisionID_)
-    {
-        VendorID =  VendorID_;
-        DeviceID = DeviceID_;
-        iolRev = RevisionID_;
-    }
+void PDclass::set_iodd(uint16_t VendorID_, uint32_t DeviceID_, uint8_t RevisionID_)
+{
+    VendorID = VendorID_;
+    DeviceID = DeviceID_;
+    iolRev = RevisionID_;
+}
 
 //!*******************************************************************************
 //!  function :    set_iodd
@@ -1387,7 +1386,7 @@ return retValue;
 //!
 //!*******************************************************************************
 
-    bool IOLMasterPortMax14819::get_DeviceConnection()
-    {
-        return deviceConnection; //deviceConnection ==0 -> there is a device connected
-    }
+bool IOLMasterPortMax14819::get_DeviceConnection()
+{
+    return deviceConnection; // deviceConnection ==0 -> there is a device connected
+}

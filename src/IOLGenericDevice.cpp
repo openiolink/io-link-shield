@@ -23,7 +23,7 @@
 
 //!**** Implementation *********************************************************
 
-IOLGenericDevice::IOLGenericDevice(IOLMasterPort * port)
+IOLGenericDevice::IOLGenericDevice(IOLMasterPort *port)
 {
 	this->port = port;
 }
@@ -40,8 +40,8 @@ IOLGenericDevice::IOLGenericDevice(IOLMasterPort * port)
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::begin() {
-
+void IOLGenericDevice::begin()
+{
 }
 
 //!*****************************************************************************
@@ -56,8 +56,8 @@ void IOLGenericDevice::begin() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::end() {
-
+void IOLGenericDevice::end()
+{
 }
 
 //!*****************************************************************************
@@ -72,8 +72,8 @@ void IOLGenericDevice::end() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::eventHandler() {
-
+void IOLGenericDevice::eventHandler()
+{
 }
 
 //!*****************************************************************************
@@ -88,8 +88,8 @@ void IOLGenericDevice::eventHandler() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::connectIOLinkMode() {
-
+void IOLGenericDevice::connectIOLinkMode()
+{
 }
 
 //!*****************************************************************************
@@ -104,8 +104,8 @@ void IOLGenericDevice::connectIOLinkMode() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::disconnectIOLinkMode() {
-
+void IOLGenericDevice::disconnectIOLinkMode()
+{
 }
 
 //!*****************************************************************************
@@ -120,8 +120,8 @@ void IOLGenericDevice::disconnectIOLinkMode() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::writeCycleTme() {
-
+void IOLGenericDevice::writeCycleTme()
+{
 }
 
 //!*****************************************************************************
@@ -136,8 +136,8 @@ void IOLGenericDevice::writeCycleTme() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readCycleTime() {
-
+void IOLGenericDevice::readCycleTime()
+{
 }
 
 //!*****************************************************************************
@@ -152,8 +152,8 @@ void IOLGenericDevice::readCycleTime() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::writeProcessData() {
-
+void IOLGenericDevice::writeProcessData()
+{
 }
 
 //!*****************************************************************************
@@ -168,8 +168,8 @@ void IOLGenericDevice::writeProcessData() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readProcessData() {
-
+void IOLGenericDevice::readProcessData()
+{
 }
 
 //!*****************************************************************************
@@ -184,8 +184,8 @@ void IOLGenericDevice::readProcessData() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::writeCQ() {
-
+void IOLGenericDevice::writeCQ()
+{
 }
 
 //!*****************************************************************************
@@ -200,8 +200,8 @@ void IOLGenericDevice::writeCQ() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readCQ() {
-
+void IOLGenericDevice::readCQ()
+{
 }
 
 //!*****************************************************************************
@@ -216,8 +216,8 @@ void IOLGenericDevice::readCQ() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readDI() {
-
+void IOLGenericDevice::readDI()
+{
 }
 
 //!*****************************************************************************
@@ -232,8 +232,8 @@ void IOLGenericDevice::readDI() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::writeSpecISDU() {
-
+void IOLGenericDevice::writeSpecISDU()
+{
 }
 
 //!*****************************************************************************
@@ -248,8 +248,8 @@ void IOLGenericDevice::writeSpecISDU() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readSpecISDU() {
-
+void IOLGenericDevice::readSpecISDU()
+{
 }
 
 //!*****************************************************************************
@@ -264,8 +264,8 @@ void IOLGenericDevice::readSpecISDU() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readDeviceAccessLocks() {
-
+void IOLGenericDevice::readDeviceAccessLocks()
+{
 }
 
 //!*****************************************************************************
@@ -280,8 +280,8 @@ void IOLGenericDevice::readDeviceAccessLocks() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readProfileCharacteristic() {
-
+void IOLGenericDevice::readProfileCharacteristic()
+{
 }
 
 //!*****************************************************************************
@@ -296,8 +296,8 @@ void IOLGenericDevice::readProfileCharacteristic() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readPDInputDescriptor() {
-
+void IOLGenericDevice::readPDInputDescriptor()
+{
 }
 
 //!*****************************************************************************
@@ -312,8 +312,8 @@ void IOLGenericDevice::readPDInputDescriptor() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readPDOutputDescriptor() {
-
+void IOLGenericDevice::readPDOutputDescriptor()
+{
 }
 
 //!*****************************************************************************
@@ -328,8 +328,8 @@ void IOLGenericDevice::readPDOutputDescriptor() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readVendorName() {
-
+void IOLGenericDevice::readVendorName()
+{
 }
 
 //!*****************************************************************************
@@ -344,8 +344,8 @@ void IOLGenericDevice::readVendorName() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readVendorText() {
-
+void IOLGenericDevice::readVendorText()
+{
 }
 
 //!*****************************************************************************
@@ -360,8 +360,8 @@ void IOLGenericDevice::readVendorText() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readProductName() {
-
+void IOLGenericDevice::readProductName()
+{
 }
 
 //!*****************************************************************************
@@ -376,8 +376,8 @@ void IOLGenericDevice::readProductName() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readProductID() {
-
+void IOLGenericDevice::readProductID()
+{
 }
 
 //!*****************************************************************************
@@ -392,8 +392,8 @@ void IOLGenericDevice::readProductID() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readProductText() {
-
+void IOLGenericDevice::readProductText()
+{
 }
 
 //!*****************************************************************************
@@ -408,8 +408,8 @@ void IOLGenericDevice::readProductText() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readSerialNumber() {
-
+void IOLGenericDevice::readSerialNumber()
+{
 }
 
 //!*****************************************************************************
@@ -424,8 +424,8 @@ void IOLGenericDevice::readSerialNumber() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readHardwareRev() {
-
+void IOLGenericDevice::readHardwareRev()
+{
 }
 
 //!*****************************************************************************
@@ -440,8 +440,8 @@ void IOLGenericDevice::readHardwareRev() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readFirmwareRev() {
-
+void IOLGenericDevice::readFirmwareRev()
+{
 }
 
 //!*****************************************************************************
@@ -456,8 +456,8 @@ void IOLGenericDevice::readFirmwareRev() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::writeMasterCycleTime() {
-
+void IOLGenericDevice::writeMasterCycleTime()
+{
 }
 
 //!*****************************************************************************
@@ -472,8 +472,8 @@ void IOLGenericDevice::writeMasterCycleTime() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readMasterCycleTime() {
-
+void IOLGenericDevice::readMasterCycleTime()
+{
 }
 
 //!*****************************************************************************
@@ -488,12 +488,13 @@ void IOLGenericDevice::readMasterCycleTime() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readMinCycleTime() {
+void IOLGenericDevice::readMinCycleTime()
+{
 	uint8_t pData[2];
 	char buf[64];
-	uint8_t time = port->readDirectParameterPage(0x2, pData);	
+	uint8_t time = port->readDirectParameterPage(0x2, pData);
 	sprintf(buf, "Min Cycle Time Data: %d, %d, Retval: %d", pData[0], pData[1], time);
-	//HardwareBase::Serial_Write(buf);
+	// HardwareBase::Serial_Write(buf);
 }
 
 //!*****************************************************************************
@@ -508,8 +509,8 @@ void IOLGenericDevice::readMinCycleTime() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readMSeqCapability() {
-
+void IOLGenericDevice::readMSeqCapability()
+{
 }
 
 //!*****************************************************************************
@@ -524,8 +525,8 @@ void IOLGenericDevice::readMSeqCapability() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readRevID() {
-
+void IOLGenericDevice::readRevID()
+{
 }
 
 //!*****************************************************************************
@@ -540,8 +541,8 @@ void IOLGenericDevice::readRevID() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readProcessDataIn() {
-
+void IOLGenericDevice::readProcessDataIn()
+{
 }
 
 //!*****************************************************************************
@@ -556,8 +557,8 @@ void IOLGenericDevice::readProcessDataIn() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readProcessDataOut() {
-
+void IOLGenericDevice::readProcessDataOut()
+{
 }
 
 //!*****************************************************************************
@@ -572,8 +573,8 @@ void IOLGenericDevice::readProcessDataOut() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readVendorID() {
-
+void IOLGenericDevice::readVendorID()
+{
 }
 
 //!*****************************************************************************
@@ -588,8 +589,8 @@ void IOLGenericDevice::readVendorID() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readDeviceID() {
-
+void IOLGenericDevice::readDeviceID()
+{
 }
 
 //!*****************************************************************************
@@ -604,6 +605,6 @@ void IOLGenericDevice::readDeviceID() {
 //!  \return       void
 //!
 //!*****************************************************************************
-void IOLGenericDevice::readFunctionID() {
-
+void IOLGenericDevice::readFunctionID()
+{
 }

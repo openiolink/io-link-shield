@@ -31,7 +31,7 @@
 using json = nlohmann::json;
 
 //!**** Definitions ***********************************************************
-#define SWAP_INT32(x) (((x) >> 24) | (((x)&0x00FF0000) >> 8) | (((x)&0x0000FF00) << 8) | ((x) << 24));
+#define SWAP_INT32(x) (((x) >> 24) | (((x) & 0x00FF0000) >> 8) | (((x) & 0x0000FF00) << 8) | ((x) << 24));
 
 //!**** Implementation *********************************************************
 
@@ -91,7 +91,7 @@ void ShieldCommunication::Communication_startup(bool extended_board)
     hardware.begin();
 
     // Create IODD manager
-    //instance = IoddManager();
+    // instance = IoddManager();
     service = IoddService();
 
     // Create drivers
@@ -508,12 +508,12 @@ void ShieldCommunication::PD_all_ports()
                 jsonobject = nr.get_PDclass()->interpretProcessData(service);
                 jsonobject["ts"] = currentTime;
                 jsonstring = jsonobject.dump();
-               /* tmpobject = nr.get_PDclass()->interpretProcessData(instance);
-                tmpobject["ts"] = currentTime;
-                tmpstring = tmpobject.dump();*/
-              cout << "---------------------------------------------------------------------------------------------------------------" << endl;
-               cout << "interpreted ProcessData new: " << jsonstring << endl;
-             //  cout << "interpreted ProcessData old: " << tmpstring << endl;
+                /* tmpobject = nr.get_PDclass()->interpretProcessData(instance);
+                 tmpobject["ts"] = currentTime;
+                 tmpstring = tmpobject.dump();*/
+                cout << "---------------------------------------------------------------------------------------------------------------" << endl;
+                cout << "interpreted ProcessData new: " << jsonstring << endl;
+                //  cout << "interpreted ProcessData old: " << tmpstring << endl;
                 pointer = &jsonstring[0];
                 int qos = 0; // QoS level
                 int retVal = mosquitto_publish(mosq, NULL, topic_str.c_str(), jsonstring.size(), pointer, qos, false);
@@ -632,8 +632,9 @@ void ShieldCommunication::Write_Port(uint8_t port_nr)
 
 void ShieldCommunication::Write_procDataOut(uint8_t port_nr, vector<uint8_t> Data)
 {
-    cout<<"Write_procDataOut"<<endl;
-    for (uint8_t i : Data) {
+    cout << "Write_procDataOut" << endl;
+    for (uint8_t i : Data)
+    {
         cout << int(i) << endl;
     }
     ports.at(port_nr).get_PDclass()->write_procDataOut(Data);
@@ -767,223 +768,219 @@ int main()
         .methods("POST"_method)([&shield](const crow::request &req)
                                 {
 
-        auto x = crow::json::load(req.body);
+                auto x = crow::json::load(req.body);
 
-        if (!x) return crow::response(400);
+                if (!x) return crow::response(400);
 
-        vector<uint8_t> pData;
-        pData.clear();
+                vector<uint8_t> pData;
+                pData.clear();
 
-        string hexStr = string(x["Data"]);
-        if((hexStr.length()%2)!=0) hexStr ="0"+hexStr; //length correction (even)
+                string hexStr = string(x["Data"]);
+                if ((hexStr.length() % 2) != 0) hexStr = "0" + hexStr; //length correction (even)
 
-        //Hilfsvariablen
-        string hstr;
-        int k=0;
-        unsigned int hilfsvar;
-        //hex in string to int
-        for(int i=0; i<hexStr.size();i=i+2)
-        {
-            hstr.push_back(hexStr[i]);
-            hstr.push_back(hexStr[i+1]);
-            istringstream iss(hstr);
-            iss >> hex >> hilfsvar;
-            pData.push_back(uint8_t(hilfsvar));
-            k++;
-            hstr.clear();
-        }
-        //end of conversion
+                //Hilfsvariablen
+                string hstr;
+                int k = 0;
+                unsigned int hilfsvar;
+                //hex in string to int
+                for (int i = 0; i < hexStr.size(); i = i + 2)
+                {
+                    hstr.push_back(hexStr[i]);
+                    hstr.push_back(hexStr[i + 1]);
+                    istringstream iss(hstr);
+                    iss >> hex >> hilfsvar;
+                    pData.push_back(uint8_t(hilfsvar));
+                    k++;
+                    hstr.clear();
+                }
+                //end of conversion
 
-        shield.Write_procDataOut(uint8_t(x["Port"].i()), pData); //calling method to actually write
+                shield.Write_procDataOut(uint8_t(x["Port"].i()), pData); //calling method to actually write
 
-        std::ostringstream os;
-        
-        os << "Process Data was written!";
+                std::ostringstream os;
 
-        return crow::response{os.str()}; });
+                os << "Process Data was written!";
+
+                return crow::response{ os.str() }; });
 
     //===================================================================================================================================
     CROW_ROUTE(app, "/writeCycleTime") // add a delay in reading & writing ProcessData
         .methods("POST"_method)([&shield](const crow::request &req)
                                 {
 
-        auto x = crow::json::load(req.body);
+                auto x = crow::json::load(req.body);
 
-        if (!x) return crow::response(400);
+                if (!x) return crow::response(400);
 
-        shield.writeCycleTime( int(x["cycleTime"].i())); //calling method of writing the actual cycle time
+                shield.writeCycleTime(int(x["cycleTime"].i())); //calling method of writing the actual cycle time
 
-        std::ostringstream os;
-        
-        os << "Cycle Time was written successfully!";
+                std::ostringstream os;
 
-        return crow::response{os.str()}; });
+                os << "Cycle Time was written successfully!";
+
+                return crow::response{ os.str() }; });
 
     //====================================================================================================================================
     CROW_ROUTE(app, "/readCycleTime") // add a delay in reading & writing ProcessData
         .methods("GET"_method)([&shield]()
                                {
 
-        int returnValue;
+                int returnValue;
 
-        returnValue = int(shield.getCycleTime()); //calling method of reading the actual cycle time
+                returnValue = int(shield.getCycleTime()); //calling method of reading the actual cycle time
 
-        std::ostringstream os;
-        
-        os << int(returnValue);
+                std::ostringstream os;
 
-        return crow::response{os.str()}; });
+                os << int(returnValue);
+
+                return crow::response{ os.str() }; });
 
     //===================================================================================================================================
     CROW_ROUTE(app, "/readisdu") // send request with Port Index Subindex to read out the selected ISDU Data
         .methods("POST"_method)([&shield](const crow::request &req)
                                 {
 
-            auto x = crow::json::load(req.body);
-            
-            if (!x) return crow::response(400);
+                auto x = crow::json::load(req.body);
 
-            vector<uint8_t> oData;
+                if (!x) return crow::response(400);
 
-            //cout<<"Port :"<<int(x["Port"].i()) << " Index: " << int(x["Index"].i()) << " Subindex: " << int(x["Subindex"].i())<<endl;
+                vector<uint8_t> oData;
 
-            thread readISDUThread(&ShieldCommunication::ISDU_Read, &shield, uint8_t(x["Port"].i()), uint16_t(x["Index"].i()), uint8_t(x["Subindex"].i()), ref(oData)); //starting a thread because you maybe need IOL Communication
+                //cout<<"Port :"<<int(x["Port"].i()) << " Index: " << int(x["Index"].i()) << " Subindex: " << int(x["Subindex"].i())<<endl;
 
-            readISDUThread.join();  
+                thread readISDUThread(&ShieldCommunication::ISDU_Read, &shield, uint8_t(x["Port"].i()), uint16_t(x["Index"].i()), uint8_t(x["Subindex"].i()), ref(oData)); //starting a thread because you maybe need IOL Communication
 
-            std::ostringstream os;
+                readISDUThread.join();
 
-            for(int i=0;i<oData.size();i++)
-            {
-                stringstream stream;
-                stream<<hex<<int(oData.at(i));
-                os << stream.str() << " ";
-                //os << int(oData.at(i)) <<" ";
-            }
-        crow::json::wvalue returnObject;
+                std::ostringstream os;
 
-        returnObject["Port"]=x["Port"];
-        returnObject["Data"]=os.str();
-            //return crow::response{os.str()};
-        return  crow::response{returnObject}; });
+                for (int i = 0; i < oData.size(); i++)
+                {
+                    stringstream stream;
+                    stream << hex << int(oData.at(i));
+                    os << stream.str() << " ";
+                    //os << int(oData.at(i)) <<" ";
+                }
+                crow::json::wvalue returnObject;
+
+                returnObject["Port"] = x["Port"];
+                returnObject["Data"] = os.str();
+                //return crow::response{os.str()};
+                return  crow::response{ returnObject }; });
 
     //===================================================================================================================================
     CROW_ROUTE(app, "/writeisdu") // send a Port Index Subindex and Data to write it in the selected ISDU Register
         .methods("POST"_method)([&shield](const crow::request &req)
                                 {
 
-        auto x = crow::json::load(req.body);
-    
-        if (!x) return crow::response(400);
+                auto x = crow::json::load(req.body);
 
-        vector<uint8_t> oData;
+                if (!x) return crow::response(400);
 
-        oData.clear();
+                vector<uint8_t> oData;
 
-        string str = string(x["Data"]);
-        if((str.length()%2)!=0) str ="0"+str; //length correction
-        string hstr;
-        int k=0;
-        unsigned int hilfsvar;
-        for(int i=0; i<str.size();i=i+2)
-        {
-            hstr.push_back(str[i]);
-            hstr.push_back(str[i+1]);
-            istringstream iss(hstr);
-            iss >> hex >> hilfsvar;
-            oData.push_back(uint8_t(hilfsvar));
-            k++;
-            hstr.clear();
-        }
-        /*for(int i=0;i<oData.size();i++)
-        {
-            cout<<"oData: " << int(oData[i])<<endl;
-        }*/
-        thread readISDUThread(&ShieldCommunication::ISDU_Write, &shield,  uint8_t(x["Port"].i()), uint16_t(x["Index"].i()), uint8_t(x["Subindex"].i()), oData); //starting a thread because you maybe need IOL Communication
-        readISDUThread.join();
+                oData.clear();
 
-        std::ostringstream os;
+                string str = string(x["Data"]);
+                if ((str.length() % 2) != 0) str = "0" + str; //length correction
+                string hstr;
+                int k = 0;
+                unsigned int hilfsvar;
+                for (int i = 0; i < str.size(); i = i + 2)
+                {
+                    hstr.push_back(str[i]);
+                    hstr.push_back(str[i + 1]);
+                    istringstream iss(hstr);
+                    iss >> hex >> hilfsvar;
+                    oData.push_back(uint8_t(hilfsvar));
+                    k++;
+                    hstr.clear();
+                }
+                thread readISDUThread(&ShieldCommunication::ISDU_Write, &shield, uint8_t(x["Port"].i()), uint16_t(x["Index"].i()), uint8_t(x["Subindex"].i()), oData); //starting a thread because you maybe need IOL Communication
+                readISDUThread.join();
 
-        for(int i=0;i<oData.size();i++)
-        {
-            os << int(oData.at(i));
-        }
+                std::ostringstream os;
 
-        return crow::response{os.str()}; });
+                for (int i = 0; i < oData.size(); i++)
+                {
+                    os << int(oData.at(i));
+                }
+
+                return crow::response{ os.str() }; });
 
     //===================================================================================================================================
 
     CROW_ROUTE(app, "/checkDevices") // please use GET-methods
     ([&shield]()
      {
-        vector<uint8_t> portConnection;
+                vector<uint8_t> portConnection;
 
-        thread isDeviceConnectedThread(&ShieldCommunication::isDeviceConnected,&shield, ref(portConnection)); //starting a thread because you maybe need IOL Communication
-        isDeviceConnectedThread.join();
+                thread isDeviceConnectedThread(&ShieldCommunication::isDeviceConnected, &shield, ref(portConnection)); //starting a thread because you maybe need IOL Communication
+                isDeviceConnectedThread.join();
 
-        crow::json::wvalue returnObject;
-        for(int portNummer=3;portNummer>=0;portNummer=portNummer-1)
-        {
-            if(portConnection[portNummer]==0)
-            {
-                switch(portNummer)
+                crow::json::wvalue returnObject;
+                for (int portNummer = 3; portNummer >= 0; portNummer = portNummer - 1)
                 {
-                    case 0:
-                    returnObject ["Port0"] = true;
-                    break;
-                    case 1:
-                    returnObject ["Port1"] = true;
-                    break;
-                    case 2:
-                    returnObject ["Port2"] = true;
-                    break;
-                    case 3:
-                    returnObject ["Port3"] = true;
-                    break;
-                    default:
-                    break;
-                }
-            }
-            else
-            {
-                switch(portNummer)
+                    if (portConnection[portNummer] == 0)
                     {
-                    case 0:
-                    returnObject ["Port0"] = false;
-                    break;
-                    case 1:
-                    returnObject ["Port1"] = false;
-                    break;
-                    case 2:
-                    returnObject ["Port2"] = false;
-                    break;
-                    case 3:
-                    returnObject ["Port3"] = false;
-                    break;
-                    default:
-                    break;
+                        switch (portNummer)
+                        {
+                        case 0:
+                            returnObject["Port0"] = true;
+                            break;
+                        case 1:
+                            returnObject["Port1"] = true;
+                            break;
+                        case 2:
+                            returnObject["Port2"] = true;
+                            break;
+                        case 3:
+                            returnObject["Port3"] = true;
+                            break;
+                        default:
+                            break;
+                        }
                     }
-            }
-        }
-    return returnObject; });
+                    else
+                    {
+                        switch (portNummer)
+                        {
+                        case 0:
+                            returnObject["Port0"] = false;
+                            break;
+                        case 1:
+                            returnObject["Port1"] = false;
+                            break;
+                        case 2:
+                            returnObject["Port2"] = false;
+                            break;
+                        case 3:
+                            returnObject["Port3"] = false;
+                            break;
+                        default:
+                            break;
+                        }
+                    }
+                }
+                return returnObject; });
 
     CROW_ROUTE(app, "/changeipforbroker") // send a Port Index Subindex and Data to write it in the selected ISDU Register
         .methods("POST"_method)([&shield](const crow::request &req)
                                 {
 
-        auto x = crow::json::load(req.body);
-    
-        if (!x) return crow::response(400);
+                auto x = crow::json::load(req.body);
 
-        string hstr = string(x["newIP"]);
+                if (!x) return crow::response(400);
 
-        shield.writeIP(hstr);
+                string hstr = string(x["newIP"]);
 
-        std::ostringstream os;
+                shield.writeIP(hstr);
 
-        os << "Done!";
+                std::ostringstream os;
 
-        return crow::response{os.str()}; });
+                os << "Done!";
+
+                return crow::response{ os.str() }; });
 
     //======End API======
 
