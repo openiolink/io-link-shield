@@ -4,6 +4,7 @@ The repository contains the IO-Link master stack for using the adapter board.
 
 ## Autors
 
+- Christian Nesich, Balluff
 - Daniel Kessler, Balluff
 - Dominik Nille, Balluff
 - Pascal Frei
